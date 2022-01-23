@@ -10,11 +10,11 @@ down:
 ps:
 	@docker compose ps
 
-app:
-	@docker compose exec app bash
+php:
+	@docker compose exec -w /tmp/src php bash
 
-app-log:
-	@docker compose logs app -f
+php-log:
+	@docker compose logs php -f
 
 db:
 	@docker compose exec db bash -c 'mysql -h localhost -u hoge -ppassword event'
