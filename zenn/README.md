@@ -18,6 +18,7 @@ Zenn のプレビュー機能で閲覧してください
 ```
 $ git clone https://github.com/suzuki-hoge/docker-stepup-work
 $ cd zenn
+$ npm install
 $ npx zenn preview
 ```
 
