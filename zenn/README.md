@@ -124,23 +124,23 @@ docker-practice_mail    mail       running    1025/tcp, 0.0.0.0:1080->1080/tcp, 
 
 ブラウザを開くと簡単なトップページが表示され
 
-![image](./image/demo-top.png)
+![image](./images/demo-top.png)
 
 メール送信フォームに入力すると
 
-![image](./image/demo-send.png)
+![image](./images/demo-send.png)
 
 メールが送信されます ( メーラーはモックなので実際には送信されません / 実在しない宛先でも動きます )
 
-![image](./image/demo-result.png)
+![image](./images/demo-result.png)
 
 モックのメールサーバでメールの内容を確認したり
 
-![image](./image/demo-mailer.png)
+![image](./images/demo-mailer.png)
 
 メールの送信履歴を確認することができます
 
-![image](./image/demo-history.png)
+![image](./images/demo-history.png)
 
 ## 前提
 次のインストールが必要です
