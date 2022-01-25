@@ -175,14 +175,15 @@ DISTRIB_DESCRIPTION="Ubuntu Jammy Jellyfish (development branch)"
 
 考えてから実行してみてください
 
-<details>
-<summary>結果</summary>
-<pre>
-<code>$ docker ps
+:::details 結果
+```
+$ docker ps
 
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES</code></pre>コンテナは命令を完遂すると終了します
 
-今回受けた命令は `cat` 一発だけだったので、その完了とともにコンテナは即時終了しました</details>
+今回受けた命令は `cat` 一発だけだったので、その完了とともにコンテナは即時終了しました
+```
+:::
 
 ## イメージとは
 `ubuntu:22.04` をイメージといいます

@@ -16,38 +16,38 @@ Mail コンテナを起動すると、Gmail のようにブラウザで受信し
 ## コンテナ内での動作確認
 ちょっとコンテナに繋いで確認してみましょう
 
-<details>
-<summary>コンテナに繋ぐ方法は覚えていますか？</summary>
-<pre>
-<code>
+:::details コンテナに繋ぐ方法は覚えていますか？
 CONTAINER ID を確認して
 
+```
 $ docker ps
 CONTAINER ID    IMAGE                     COMMAND                    CREATED           STATUS           PORTS                  NAMES
 1b4cbbeb4f19    schickling/mailcatcher    "mailcatcher --no-qu…"     6 minutes ago     Up 6 minutes     1025/tcp, 1080/tcp     jolly_varahamihira
 11d945f0edf0    mysql:5.7                 "docker-entrypoint.s…"     7 minutes ago     Up 7 minutes     3306/tcp, 33060/tcp    stupefied_napier
 345264ac9206    ubuntu:22.04              "bash"                     33 minutes ago    Up 33 minutes                           wizardly_bhabha
+```
 
+`docker exec <CONTAINER>` です
 
-docker exec <CONTAINER> です
-
+```
 $ docker exec -it 1b4cbbeb4f19 bash
 OCI runtime exec failed: exec failed: container_linux.go:380: starting container process caused: exec: "bash": executable file not found in $PATH: unknown
+```
 
 が、失敗しました
 
-どうやらこのコンテナには bash がインストールされていなかったようです
+どうやらこのコンテナには `bash` がインストールされていなかったようです
 
-仕方ないので代わりに sh を使いましょう
+仕方ないので代わりに `sh` を使いましょう
 
+```
 $ docker exec -it 1b4cbbeb4f19 sh
 
 #
+```
 
 接続できました
-</code>
-</pre>
-</details>
+:::
 
 `curl` を使ってモックメールサーバを叩いてみようと思うのですが、`bash` が入っていなかったくらいですからおそらく `curl` も入ってないでしょう
 

@@ -24,26 +24,24 @@ Zend Engine v4.0.8, Copyright (c) Zend Technologies
 
 ではもう一つ Ubuntu コンテナを起動して、`php -v` を実行してみましょう
 
-<details>
-<summary>結果はどのようになるでしょうか</summary>
-<pre>
-<code>$ docker run -it ubuntu:22.04
+:::details 結果はどのようになるでしょうか
+```
+$ docker run -it ubuntu:22.04
 
 # php -v
-bash: php: command not found</code>
-</pre>
+bash: php: command not found
+```
+
 `php` が入っていません
-</details>
+:::
 
 # 起動中の PHP コンテナを停止して、また Ubuntu コンテナを起動してみよう
 コンテナの停止は `docker stop` で行います
 
 当然起動しているコンテナに対して実行するので、`docker exec` と同じく `CONTAINER ID` を指定して実行します
 
-<details>
-<summary>起動中の PHP コンテナを停止し、また起動して、`php -v` を実行しましょう</summary>
-<pre>
-<code>
+:::details 起動中の PHP コンテナを停止し、また起動して、`php -v` を実行しましょう
+```
 $ docker ps
 CONTAINER ID    IMAGE                     COMMAND                    CREATED           STATUS           PORTS                  NAMES
 1b4cbbeb4f19    schickling/mailcatcher    "mailcatcher --no-qu…"     6 minutes ago     Up 6 minutes     1025/tcp, 1080/tcp     jolly_varahamihira
@@ -62,10 +60,10 @@ $ docker run -it ubuntu:22.04
 
 # php -v
 bash: php: command not found
-</code>
-</pre>
+```
+
 やはり `php` は入っていません
-</details>
+:::
 
 # PHP の入っているイメージを作ろう
 同じイメージから起動したコンテナ同士だとしても、コンテナは状態を共有しません
@@ -104,10 +102,8 @@ Ubuntu に PHP をインストールしたコマンドを再掲しますので�
 # apt-get install -y php8.0
 ```
 
-<details>
-<summary>Dockerfile</summary>
-<pre>
-<code>
+:::details Dockerfile
+```
 FROM ubuntu:22.04
 
 RUN apt-get update
@@ -115,9 +111,8 @@ RUN apt-get install -y software-properties-common
 RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
 RUN apt-get update
 RUN apt-get install -y php8.0
-</code>
-</pre>
-</details>
+```
+:::
 
 一度コンテナ内で実行した実績があるので簡単ですね
 
@@ -151,10 +146,8 @@ docker-step-up-work-build_app    latest    176ddd804a12    1 hours ago    303MB
 
 イメージになったので `docker run` で起動できます
 
-<details>
-<summary>起動して PHP が入っていることを確認しましょう</summary>
-<pre>
-<code>
+:::details 起動して PHP が入っていることを確認しましょう
+```
 $ docker run -it docker-step-up-work-build_php
 
 # php -v
@@ -162,9 +155,8 @@ PHP 8.0.14 (cli) (built: Dec 20 2021 21:22:57) ( NTS )
 Copyright (c) The PHP Group
 Zend Engine v4.0.14, Copyright (c) Zend Technologies
     with Zend OPcache v8.0.14, Copyright (c), by Zend Technologies
-</code>
-</pre>
-</details>
+```
+:::
 
 これで `ubuntu:22.04` ではなく `docker-step-up-work-build_php` を起動すればすぐ PHP が使えるようになりました
 
@@ -184,12 +176,11 @@ docker
 
 Dockerfile を移動してもイメージをビルドし直す必要はありませんが、練習と思って再ビルドしておきましょう
 
-<details>
-<summary>Dockerfile を指定してイメージをビルドするコマンド</summary>
-<pre>
-<code>$ docker build -t docker-step-up-build_php -f docker/php/Dockerfile .</code>
-</pre>
-</details>
+:::details Dockerfile を指定してイメージをビルドするコマンド
+```
+$ docker build -t docker-step-up-build_php -f docker/php/Dockerfile .
+```
+:::
 
 これで複数の `Dockerfile` を扱う準備ができました
 

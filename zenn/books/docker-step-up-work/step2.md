@@ -78,15 +78,15 @@ MySQL サーバに接続する `mysql` コマンドの書式は次の通りで�
 mysql -h <host> -u <user> -p<password> <database>
 ```
 
-<details>
-<summary>MySQL コンテナの `bash` から作ったユーザで `event` データベースに接続してみましょう</summary>
-<pre>
-<code># mysql -h localhost -u hoge -ppassword event
->mysql> </code>
-</pre>
+:::details MySQL コンテナの `bash` から作ったユーザで `event` データベースに接続してみましょう
+```
+# mysql -h localhost -u hoge -ppassword event
+
+>mysql>
+```
 
 `<host>` は MySQL コンテナの `bash` から繋ぐので `localhost` で、それ以外は自分で決めたパラメータです
-</details>
+:::
 
 空っぽの `event` データベースが作られていることが確認できます
 
@@ -109,19 +109,19 @@ Empty set (0.00 sec)
 
 また、`docker exec` で `ls -l` のように複数単語による命令が指定できるということは、`mysql` も指定できるということです
 
-<details>
-<summary>`docker exec` で `bash` を起動せずに MySQL データベースに接続してみましょう</summary>
-<pre>
-<code>$ docker exec -it 11d945f0edf0 mysql -h localhost -u hoge -ppassword event
->mysql> </code>
-</pre>
+:::details `docker exec` で `bash` を起動せずに MySQL データベースに接続してみましょう
+```
+$ docker exec -it 11d945f0edf0 mysql -h localhost -u hoge -ppassword event
+
+>mysql>
+```
 
 コンテナの中で動いたコマンド全くそのままです
 
 `docker exec` 自体はホストマシンのターミナルで書いてますが、`mysql` コマンドが実行されるのはコンテナの中だと意識しましょう
 
 このコマンドはホストマシンから MySQL データベースに接続しているのではなく、ホストマシンからコンテナへ MySQL データベースに接続する命令を送りつけています
-</details>
+:::
 
 # まとめ
 `docker exec` を紹介しました
