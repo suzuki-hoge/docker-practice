@@ -443,7 +443,7 @@ Docker Hub や Docker Engine について確認し、`docker run` と `docker bu
 - `docker build` が Dockerfile からイメージを作るコマンド
 - 作ったイメージを共有する Saas サービスが Docker Hub
 
-![image](/iamges/slide/slide.006.jpeg)
+![image](/images/slide/slide.006.jpeg)
 
 これ以降のワークはイメージとコンテナの実際の操作・作成がメインになります
 
