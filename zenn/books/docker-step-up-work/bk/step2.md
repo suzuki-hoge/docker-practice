@@ -20,7 +20,7 @@ $ docker ps
 CONTAINER ID    IMAGE                     COMMAND                    CREATED           STATUS           PORTS                  NAMES
 1b4cbbeb4f19    schickling/mailcatcher    "mailcatcher --no-qu…"     6 minutes ago     Up 6 minutes     1025/tcp, 1080/tcp     jolly_varahamihira
 11d945f0edf0    mysql:5.7                 "docker-entrypoint.s…"     7 minutes ago     Up 7 minutes     3306/tcp, 33060/tcp    stupefied_napier
-345264ac9206    ubuntu:22.04              "bash"                     33 minutes ago    Up 33 minutes                           wizardly_bhabha
+345264ac9206    ubuntu:20.04              "bash"                     33 minutes ago    Up 33 minutes                           wizardly_bhabha
 ```
 
 `docker exec` をしてみましょう
@@ -136,6 +136,6 @@ $ docker exec -it 11d945f0edf0 mysql -h localhost -u hoge -ppassword event
 
 思った通りに動かない時に直接 `bash` で接続してデバッグしたりもするので、覚えておきましょう
 
-- [step1](./step1.md)
-- [step3](./step3.md)
+- [step1](books/docker-step-up-work/bk/step1.mder-step-up-work/bk/step1.md)
+- [step3](books/docker-step-up-work/bk/step3.mder-step-up-work/bk/step3.md)
 

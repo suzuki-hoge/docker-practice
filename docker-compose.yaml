@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./docker/php/Dockerfile
     ports:
-      - '9000:8000'
+      - '18000:8000'
     volumes:
       - type: bind
         source: ./src
@@ -17,7 +17,7 @@ services:
 # todo platform
     image: schickling/mailcatcher
     ports:
-      - "1080:1080"
+      - "11080:1080"
 
   db:
     container_name: docker-practice-db

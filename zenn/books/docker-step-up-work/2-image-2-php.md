@@ -1,7 +1,6 @@
 ---
-title: "Step 3: イメージを作成しよう"
+title: "🖥️ ｜ 🐳 ｜ PHP イメージを作ってコンテナ起動を早くしよう"
 ---
-
 この章の目標は Ubuntu への PHP インストールを操作して、Dockerfile と `docker build` を理解することです
 
 - [コマンドライン・リファレンス ( build )](http://docs.docker.jp/v19.03/engine/reference/commandline/build.html)
@@ -26,7 +25,7 @@ Zend Engine v4.0.8, Copyright (c) Zend Technologies
 
 :::details 結果はどのようになるでしょうか
 ```
-$ docker run -it ubuntu:22.04
+$ docker run -it ubuntu:20.04
 
 # php -v
 bash: php: command not found
@@ -46,7 +45,7 @@ $ docker ps
 CONTAINER ID    IMAGE                     COMMAND                    CREATED           STATUS           PORTS                  NAMES
 1b4cbbeb4f19    schickling/mailcatcher    "mailcatcher --no-qu…"     6 minutes ago     Up 6 minutes     1025/tcp, 1080/tcp     jolly_varahamihira
 11d945f0edf0    mysql:5.7                 "docker-entrypoint.s…"     7 minutes ago     Up 7 minutes     3306/tcp, 33060/tcp    stupefied_napier
-345264ac9206    ubuntu:22.04              "bash"                     33 minutes ago    Up 33 minutes                           wizardly_bhabha
+345264ac9206    ubuntu:20.04              "bash"                     33 minutes ago    Up 33 minutes                           wizardly_bhabha
 
 $ docker stop 345264ac9206
 345264ac9206
@@ -56,7 +55,7 @@ CONTAINER ID    IMAGE                     COMMAND                    CREATED    
 1b4cbbeb4f19    schickling/mailcatcher    "mailcatcher --no-qu…"     6 minutes ago     Up 6 minutes     1025/tcp, 1080/tcp     jolly_varahamihira
 11d945f0edf0    mysql:5.7                 "docker-entrypoint.s…"     7 minutes ago     Up 7 minutes     3306/tcp, 33060/tcp    stupefied_napier
 
-$ docker run -it ubuntu:22.04
+$ docker run -it ubuntu:20.04
 
 # php -v
 bash: php: command not found
@@ -78,10 +77,10 @@ bash: php: command not found
 Step 0 で見たように、`Dockerfile` を作成してみましょう
 
 ```txt:Dockerfile
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
-RUN apt-get update
-RUN apt-get install -y tree vim
+RUN apt update
+RUN apt install -y tree vim
 ```
 
 これは `tree` と `vim` をインストールした時の Dockerfile です
@@ -95,22 +94,22 @@ RUN apt-get install -y tree vim
 Ubuntu に PHP をインストールしたコマンドを再掲しますので、Dockerfile を書いてみましょう
 
 ```
-# apt-get update
-# apt-get install -y software-properties-common
+# apt update
+# apt install -y software-properties-common
 # LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
-# apt-get update
-# apt-get install -y php8.0
+# apt update
+# apt install -y php8.0
 ```
 
 :::details Dockerfile
 ```
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
-RUN apt-get update
-RUN apt-get install -y software-properties-common
+RUN apt update
+RUN apt install -y software-properties-common
 RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
-RUN apt-get update
-RUN apt-get install -y php8.0
+RUN apt update
+RUN apt install -y php8.0
 ```
 :::
 
@@ -141,12 +140,12 @@ $ docker build -t docker-step-up-work-build_php .
 
 ```
 $ docker image ls | grep step-up
-docker-step-up-work-build_app    latest    176ddd804a12    1 hours ago    303MB
+docker-step-up-work-build_php    latest    176ddd804a12    1 hours ago    303MB
 ```
 
 イメージになったので `docker run` で起動できます
 
-:::details 起動して PHP が入っていることを確認しましょう
+:::details 練習: コンテナを起動して bash で接続し、PHP のバージョンを表示しましょう
 ```
 $ docker run -it docker-step-up-work-build_php
 
@@ -158,7 +157,17 @@ Zend Engine v4.0.14, Copyright (c) Zend Technologies
 ```
 :::
 
-これで `ubuntu:22.04` ではなく `docker-step-up-work-build_php` を起動すればすぐ PHP が使えるようになりました
+:::details 練習: コンテナを起動して bash で接続せず、PHP のバージョンを表示する命令を送りましょう
+```
+$ docker run -it docker-step-up-work-build_php php -v
+PHP 8.0.14 (cli) (built: Dec 20 2021 21:22:57) ( NTS )
+Copyright (c) The PHP Group
+Zend Engine v4.0.14, Copyright (c) Zend Technologies
+    with Zend OPcache v8.0.14, Copyright (c), by Zend Technologies
+```
+:::
+
+これで `ubuntu:20.04` ではなく `docker-step-up-work-build_php` を起動すればすぐ PHP が使えるようになりました
 
 ## Dockerfile を移動しておく
 これから別の Dockerfile も扱うので、ディレクトリを分けておきます
@@ -199,6 +208,6 @@ $ docker build -t docker-step-up-build_php -f docker/php/Dockerfile .
 
 コンテナは状態を持たないことと、イメージに変更を加えたい場合は Dockerfile を書くということを覚えておきましょう
 
-- [step2](./step2.md)
-- [step4](./step4.md)
+- [step2](books/docker-step-up-work/bk/step2.mder-step-up-work/bk/step2.md)
+- [step4](books/docker-step-up-work/bk/step4.mder-step-up-work/bk/step4.md)
 
