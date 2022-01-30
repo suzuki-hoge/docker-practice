@@ -1,3 +1,3 @@
 ---
-title: "📚 ｜ 🐳 ｜ Docker Compose って？"
+title: "📚 ｜ 🐳 ｜ Docker Compose ってなに？"
 ---

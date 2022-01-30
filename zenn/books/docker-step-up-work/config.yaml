@@ -15,30 +15,30 @@ chapters:
   - 0-tutorial-1-virtualization
   - 0-tutorial-2-docker
   - 0-tutorial-3-work
-  - 1-container-1-overview
-  - 1-container-2-php
-  - 1-container-3-mysql
-  - 1-container-4-mail
-  - 1-container-5-list
-  - 1-container-6-stop
-  - 1-container-7-dispose
-  - 1-container-8-summary
-  - 2-image-1-overview
-  - 2-image-2-php
-  - 2-image-3-mpa
-  - 2-image-4-mysql
-  - 2-image-5-package
-  - 2-image-6-os
-  - 2-image-7-summary
-  - 3-port-1-overview
-  - 3-port-2-php
-  - 3-port-3-mail
-  - 3-port-4-summary
-  - 4-error-1-overview
-  - 4-error-2-build
-  - 4-error-3-container
-  - 4-error-4-process
-  - 4-error-5-summary
+  - 1-container-and-image-1-container-overview
+  - 1-container-and-image-2-image-overview
+  - 1-container-and-image-3-php-container
+  - 1-container-and-image-4-mysql-container
+  - 1-container-and-image-5-mail-container
+  - 1-container-and-image-6-exec
+  - 1-container-and-image-7-dispose
+  - 1-container-and-image-8-summary
+  - 2-dockerfile-1-overview
+  - 2-dockerfile-2-php
+  - 2-dockerfile-3-mpa
+  - 2-dockerfile-4-mysql
+  - 2-dockerfile-5-package
+  - 2-dockerfile-6-os
+  - 2-dockerfile-7-summary
+  - 3-error-1-overview
+  - 3-error-2-build
+  - 3-error-3-container
+  - 3-error-4-process
+  - 3-error-5-summary
+  - 4-port-1-overview
+  - 4-port-2-php
+  - 4-port-3-mail
+  - 4-port-4-summary
   - 5-volume-1-overview
   - 5-volume-2-editor
   - 5-volume-3-data

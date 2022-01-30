@@ -3,8 +3,8 @@ services:
   php:
     container_name: docker-practice-php
     build:
-      context: .
-      dockerfile: ./docker/php/Dockerfile
+      context: ../..
+      dockerfile: docker/php/Dockerfile
     ports:
       - '18000:8000'
     volumes:
@@ -22,8 +22,8 @@ services:
   db:
     container_name: docker-practice-db
     build:
-      context: .
-      dockerfile: ./docker/db/Dockerfile
+      context: ../..
+      dockerfile: docker/db/Dockerfile
     volumes:
       - type: volume
         source: mysql-store
