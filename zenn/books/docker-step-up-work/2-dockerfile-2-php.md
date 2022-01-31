@@ -2,15 +2,20 @@
 title: "🖥️ ｜ 🐳 ｜ PHP イメージを作ってコンテナ起動を早くしよう"
 ---
 
-# 目的・動機
+# 導入
+## 目的・動機
 前のページ todo でコンテナは状態を残せないことがわかりました。
 
-Ubuntu コンテナを起動するたびに毎回 PHP のインストールをするのでは時間がかかりすぎるので、PHP のインストールされた Ubuntu イメージを作って解消できるようになりましょう。
+Ubuntu コンテナを起動するたびに毎回 PHP のインストールをするのでは時間がかかりすぎるので、PHP のインストールされた Ubuntu イメージを作って解消しましょう。
+
+## このページで初登場するコマンド
+特になし
 
 # PHP の入っているイメージを作ろう
+## Dockerfile を作る
 イメージを作成するには Dockerfile を記述します。
 
-このワーク ( および大半の実プロジェクト ) では複数の Dockerfile と追加のファイルが必要になるので、ディレクトリを作成しておくことにします。
+このワーク ( および大半の実プロジェクト ) では複数の Dockerfile と追加のファイルが必要になるので、イメージごとにディレクトリを作成しておくことにします。
 
 ```
 $ tree docker
@@ -50,10 +55,8 @@ RUN apt update                                        \
 ## Dockerfile からイメージを作る
 Dockerfile が書けたら `docker build` でビルドします。
 
-:white: Dockerfile はイメージではないので、`docker run` することはできません
-
-Dockerfile がカレントディレクトリにないのでオプションで指定する必要があります。
-イメージの名前は `docker-step-up-work-build_php` にしましょう。
+`./Dockerfile` ではないので `-f` での指定が必要です。
+イメージに名前をつけないと使いづらいので `-t` で `docker-step-up-work-build_php` という名前をつけましょう。
 パスは `.` です。
 
 ビルドが成功したらイメージ一覧を確認しましょう。
@@ -62,20 +65,25 @@ Dockerfile がカレントディレクトリにないのでオプションで指
 Dockerfile の指定は `-f` で、イメージ名の指定は `-t` で行います。
 
 ```
-$ docker build -f docker/php/Dockerfile -t docker-step-up-work-build_php .
+$ docker build                       \
+    -f docker/php/Dockerfile         \
+    -t docker-step-up-work-build_php \
+    .
 ```
 
 イメージの一覧は `docker image ls` で確認します。
+少し多くなってきたので、適当に `grep` で絞り込みます。
 
 ```
 $ docker image ls | grep step-up
+
 docker-step-up-work-build_php    latest    176ddd804a12    1 hours ago    303MB
 ```
 :::
 
 Dockerfile からイメージを作れたので、コンテナを起動することができるようになりました。
 
-コンテナ起動直後に PHP が使えそうか確認してみましょう。
+コンテナ起動直後に PHP が使えるか確認してみましょう。
 
 :::details ワーク: PHP のインストールを確認
 `bash` で確認する。
@@ -94,32 +102,21 @@ Zend Engine v4.0.14, Copyright (c) Zend Technologies
 僕は `bash` を使わない方が楽なのでこうすることが多いです。
 
 ```
-$ docker run -it docker-step-up-work-build_php which php
+$ docker run docker-step-up-work-build_php which php
 
 /usr/bin/php
-
-$
 ```
 :::
 
 これで `ubuntu:20.04` ではなく `docker-step-up-work-build_php` を起動すればすぐ PHP が使えるようになりました。
 
+`docker run` の後に行っていた PHP8 のインストール作業は `docker build` で行われるように変わりました。
+1 回分の実行時間は同じですが、イメージをビルドした後はすぐに PHP コンテナを起動できるので、今後は格段に PHP コンテナの起動時間を短縮できるようになりました。
 
 # まとめ
-`docker build` を紹介しました
+- コンテナは状態を持てないので、インストール作業をコンテナで実行すると起動のたびに必要になり非効率である
+- Dockerfile でベースのイメージに追加のレイヤーを重ねる
+- `docker build` で Dockerfile をイメージにビルドする
+- インストールを行ったイメージがビルドできれば、それ以降のコンテナ起動の時間が大幅に短縮できる
 
-![image](/images/slide/slide.010.jpeg)
-
-- コンテナは状態を持たないし、他のコンテナとも共有しない
-- コンテナで頻繁に使うものはイメージに入っていないと効率が悪い
-- Dockerfile でイメージを拡張することができる
-- `docker build` は Dockerfile を指定してイメージを作成するコマンド
-- `FROM` でベースイメージを指定する
-- `RUN` でイメージを上書きしていく
-- イメージがビルドできたら、`docker run` などのルールは Docker Hub から取得したものと全く同じ
-
-コンテナは状態を持たないことと、イメージに変更を加えたい場合は Dockerfile を書くということを覚えておきましょう
-
-- [step2](books/docker-step-up-work/bk/step2.mder-step-up-work/bk/step2.md)
-- [step4](books/docker-step-up-work/bk/step4.mder-step-up-work/bk/step4.md)
-
+todo e

@@ -21,12 +21,14 @@ chapters:
   - 1-container-and-image-4-mysql-container
   - 1-container-and-image-5-mail-container
   - 1-container-and-image-6-exec
-  - 1-container-and-image-7-dispose
-  - 1-container-and-image-8-summary
+  - 1-container-and-image-7-stop
+  - 1-container-and-image-8-name
+  - 1-container-and-image-9-dispose
+  - 1-container-and-image-10-summary
   - 2-dockerfile-1-overview
   - 2-dockerfile-2-php
-  - 2-dockerfile-3-mpa
-  - 2-dockerfile-4-mysql
+  - 2-dockerfile-3-mysql
+  - 2-dockerfile-4-mta
   - 2-dockerfile-5-package
   - 2-dockerfile-6-os
   - 2-dockerfile-7-summary

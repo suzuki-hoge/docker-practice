@@ -7,17 +7,22 @@ title: "📚 ｜ 🐳 ｜ Dockerfile ってなに？"
 
 オプション | 意味 | 用途  
 :-- | :-- | :--
+`-f, --file`   | Dockerfile を指定する | 複数の Dockerfile を使い分ける
+`-t, --tag` | ビルド結果にタグをつける | 人間が把握しやすいようにする
 
-[`docker pull [option] <image>`](https://matsuand.github.io/docs.docker.jp.onthefly/engine/reference/commandline/pull/)
+[`docker history [option] <image>`](https://matsuand.github.io/docs.docker.jp.onthefly/engine/reference/commandline/history/)
 
-[`docker image ls [option]`](https://matsuand.github.io/docs.docker.jp.onthefly/engine/reference/commandline/image_ls/)
+オプション | 意味 | 用途  
+:-- | :-- | :--
 
-`docker history`
+[Dockerfile](https://matsuand.github.io/docs.docker.jp.onthefly/engine/reference/builder/)
 
-`FROM`
-`RUN`
-`ENV`
-`CMD`
+命令 | 意味 | 用途  
+:-- | :-- | :--
+`FROM` | ベースイメージを指定する | 基盤にする OS などを指定する
+`RUN` | コマンドを実行してレイヤーを追加する | 追加インストールなどの Linux 操作を行う
+`ENV` | 環境変数を指定する | 意味の通り
+`CMD` | デフォルト命令を設定する | サーバを起動したりする
 
 # 導入
 todo のページで、イメージは `.img` のような実態を持つファイルではなくレイヤーの積み重なった情報であると理解しました。
@@ -25,8 +30,8 @@ todo のページで、イメージは `.img` のような実態を持つファ�
 しかし Docker Hub にある公式イメージなどは基本的に軽量にするためにレイヤーも最低限しか積み重なっておらず、あまり多機能ではありません。
 そのため開発をしやすくしたりプロジェクト固有の拡張を行うために、Dockerfile を用いて自分でレイヤーを重ねる必要が出てきます。
 
-# ためしに Ubuntu コンテナにコマンドを追加する
-## ビルド
+# Ubuntu コンテナにコマンドを追加したイメージを作る
+## Dockerfile を作る
 `ubuntu:20.04` には `tree` や `vi` といったコマンドがありません。
 
 ```
@@ -41,12 +46,13 @@ bash: tree: command not found
 
 これではちょっと不自由するので、`tree` と `vi` が入った Ubuntu イメージを作ってみましょう。
 
-todo `RUN`
-
 次のような `Dockerfile` ( 拡張子はありません ) を好きなディレクトリに作ります。
 
+`FROM` でベースとなるイメージを指定します、今回は `ubuntu.20.04` です。
+`RUN` で Linux コマンドを指定します、今回は `tree` と `vi` をインストールするための 3 コマンドです。
+
 ```txt:Dockerfile
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
 RUN apt update
 RUN apt install -y tree
@@ -55,26 +61,26 @@ RUN apt install -y vim
 
 `Dockerfile` のあるディレクトリで `docker build` を行うことで、イメージが作成できます。
 
-```
+```txt:docker buil
 $ docker build [option] <path>
 ```
 
 最低限の指定でビルドしてみましょう。
 
-`docker build` は Dockerfile からイメージを作成するコマンドですが、Dockerfile の指定は同じディレクトリに Dockerfile がある場合に限り省略可能です。
+`docker build` は Dockerfile からイメージを作成するコマンドですが、Dockerfile の指定は `./Dockerfile` がある場合に限り省略可能です。
 `<path>` については todo で細かく説明します、しばらくは `.` を指定します。
 
 ```
 $ docker build .
 ```
 
-最後にこんな出力がされていれば成功です。
+最後にこのような出力がされていれば成功です。
 
 ```
  => => writing image sha256:11432b7f93dfffc42633aa64c794af144afb6b9a63dd9bf198da02d4e64fc2ba
 ```
 
-## 確認
+## できたイメージを確認する
 ローカルにある取得 / ビルド済みのイメージは `docker image ls` で確認できます。
 
 `IMAGE ID` が `docker build` の `writing image sha256:` と同じイメージがあるはずです。
@@ -86,11 +92,15 @@ REPOSITORY    TAG       IMAGE ID        CREATED          SIZE
 <none>        <none>    11432b7f93df    3 minutes ago    160MB
 ubuntu        22.04     63a463683606    3 hours ago      70.4MB
 ubuntu        21.10     2a5119fc922b    3 hours ago      69.9MB
+ubuntu        20.04     9f4877540c73    3 hours ago      65.6MB
 ubuntu        latest    9f4877540c73    3 hours ago      65.6MB
 ```
 
-`docker run [option] <image> [command] [arg...]` の `<image>` の部分は、イメージが一意に特定できればイメージ名ではなくイメージ ID でも動きます。
-ビルドしたイメージを `docker run` して、`vi` と `tree` が使えるか確認してみましょう。
+イメージには必ず ID があり、タグ名などは任意です。
+
+`docker run` などの `<image>` を引数とするコマンドはイメージが一意にできれば動くので、イメージ ID でも問題なく利用できます。
+
+ビルドしたイメージ ( `11432b7f93df` ) を `docker run` して、`vi` と `tree` が使えるか確認してみましょう。
 
 :::details ワーク: ビルドしたイメージからコンテナを起動、コマンドの確認
 ```
@@ -117,12 +127,15 @@ $ docker run -it 11432b7f93df bash
 ```
 :::
 
-## オプション
+## イメージにタグをつける
 ビルドは成功していますが、毎回 `IMAGE ID` である `11432b7f93df` で指定するのは使いづらいので、ビルド結果に `-t` でタグをつけるようにしましょう。
+名前は `my-ubuntu:util` とでもしましょう。
 
 ```
 $ docker build -t my-ubuntu:util .
 ```
+
+先ほど `<none>` `<none>` となっていた部分がそれぞれ `my-ubuntu` と `util` になりました。
 
 ```
 REPOSITORY    TAG       IMAGE ID        CREATED          SIZE
@@ -133,10 +146,17 @@ ubuntu        20.04     9f4877540c73    3 hours ago      65.6MB
 ubuntu        latest    9f4877540c73    3 hours ago      65.6MB
 ```
 
-Dockerfile は変更していないので、ビルド結果自体は同じ ( `11432b7f93df` ) ですが、これで `my-ubuntu:util` で指定できるようになりました。
+これで `my-ubuntu:util` で指定できるようになりました。
+
+ちなみに、Dockerfile は変更していないのでビルド結果が同じため `IMAGE ID` ( `11432b7f93df` ) は据え置きです。
+またよく見ると `ubuntu:20.04` と `ubuntu:latest` の `IMAGE ID` も同じことが確認できます。
 
 ## レイヤー確認
 イメージのレイヤー情報を `docker history` で確認することができます。
+
+```txt:docker history
+$ docker history [option] <image>
+```
 
 `ubuntu:20.04` と `my-ubuntu:util` を比べてみましょう。
 
@@ -159,12 +179,10 @@ IMAGE          CREATED          CREATED BY                                      
 <missing>      3 weeks ago      /bin/sh -c #(nop) ADD file:d75d592836ef38b56…   70.4MB
 ```
 
-`ubuntu:20.04` ( `9f4877540c73` ) までの結果に `RUN` による 3 つのレイヤーがさらに重ねられたものが `my-ubuntu:util ( `11432b7f93df` ) だということが読み取れます。
-
-どちらのイメージも、積み上がったレイヤーの最後だけにイメージ ID が付いていることを理解しておきましょう。
-
+`ubuntu:20.04` ( `9f4877540c73` ) までの 2 レイヤーに `RUN` による 3 レイヤーがさらに重ねられたものが `my-ubuntu:util ( `11432b7f93df` ) だということが読み取れます。
 
 # デフォルト命令を変えたイメージにする
+## 別の Dockerfile を作る
 もう一例やってみましょう。
 
 環境変数を設定してタイムゾーンを東京にし、デフォルト命令を `date` コマンドに変更したイメージを作ります。
@@ -188,17 +206,23 @@ CMD date
 
 ```
 $ docker build -f Dockerfile2 -t my-ubuntu:date .
+```
 
+ビルドに成功したら一覧を確認します。
+
+```
 $ docker image ls
 
 REPOSITORY    TAG       IMAGE ID        CREATED           SIZE
 my-ubuntu     date      3df3591057f9    1 minutes ago    160MB
 my-ubuntu     util      11432b7f93df    8 minutes ago    160MB
-ubuntu        22.04     63a463683606    4 hours ago      70.4MB
-ubuntu        21.10     2a5119fc922b    4 hours ago      69.9MB
-ubuntu        20.04     9f4877540c73    4 hours ago      65.6MB
-ubuntu        latest    9f4877540c73    4 hours ago      65.6MB
+ubuntu        22.04     63a463683606    3 hours ago      70.4MB
+ubuntu        21.10     2a5119fc922b    3 hours ago      69.9MB
+ubuntu        20.04     9f4877540c73    3 hours ago      65.6MB
+ubuntu        latest    9f4877540c73    3 hours ago      65.6MB
 ```
+
+作成したイメージをデフォルト命令で起動してみましょう。
 
 :::details ワーク: デフォルト命令でビルドしたコンテナを起動
 ```
@@ -212,6 +236,7 @@ $
 命令が `bash` から `date` に変わったことで、コンテナも即終了するようになりました。
 :::
 
+## レイヤーの確認
 こちらも `docker history` でレイヤーを確認してみましょう。
 
 ```
@@ -235,35 +260,16 @@ IMAGE          CREATED         CREATED BY                                      S
 
 今回は Dockerfile で 1 つの `RUN` に `&&` で複数の Linux コマンドを実行したので、`RUN` によるレイヤーが 1 つしかありません。
 
+一般にイメージのレイヤーは少ない方が良いとされており ( todo ) 、`RUN` による Linux コマンドの実行は `&&` で 1 レイヤーにまとめるのが定石です。
+
+## todo の高速化
+
+# イメージの Git 管理
 todo
 
-## ちょっとまとめ
-- コンテナは 1 つの命令を行うために起動する
-    - 命令には `bash` のように終了するまで継続するプロセスも `cat` のように即時完了するプロセスもある
-    - 命令はイメージによってデフォルトで決まっているが、コンテナ起動時に変更することもできる
-- コンテナは命令を完遂すると終了する
-- イメージは Docker Hub から手に入れたり、自分で作ったりする
-- `docker run` はイメージからコンテナを起動するコマンド
-- `docker build` は Dockerfile からイメージを作るコマンド
-
 # まとめ
-Docker Hub や Docker Engine について確認し、`docker run` と `docker build` を実行してみました
-
-- Docker Desktop をインストールすると Docker Engine や `docker` コマンドが手に入る
-- `docker run` がイメージからコンテナを起動するコマンド
-- `docker build` が Dockerfile からイメージを作るコマンド
-- 作ったイメージを共有する Saas サービスが Docker Hub
-
-![image](/images/slide/slide.006.jpeg)
-
-これ以降のワークはイメージとコンテナの実際の操作・作成がメインになります
-
-:bulb: イメージとコンテナを徹底して意識することが Docker の操作をスムーズに理解する一番の近道です
-
-自分が何に命令して何を作っているのか、意識しながら進めてみましょう
-
-- [step1](books/docker-step-up-work/bk/step1.mder-step-up-work/bk/step1.md)
-
-
-
-:white_check Dockerfile はレイヤーを積み重ねるもの
+- `docker build` は Dockerfile からイメージを作るコマンド
+- `-f` により Dockerfile を明示できる
+- `-t` によりビルド結果にタグをつけられる
+- Dockerfile に書いた命令でレイヤーが積み重なりイメージになる
+- イメージがレイヤーの積み重ねであることを理解しておくと、Dockerfile の理解が深まる

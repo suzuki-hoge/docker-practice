@@ -9,3 +9,5 @@ title: "📚 ｜ 🐳 ｜ このワークでなにするの？"
 ![image](/images/slide/slide.007.jpeg)
 
 終了しない
+
+`[command]` と `<container>`

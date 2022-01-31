@@ -1,0 +1,5 @@
+account default
+host mail
+port 1025
+from "notice@docekr-practice.com"
+

@@ -29,3 +29,5 @@ Dockerfile を `push` するときなどは必要になりますが、この Boo
 [comment]: <> (- ローカルマシンに Docker Desktop をインストールすると一通りのことができるようになる)
 
 [comment]: <> (- Docker Hub はイメージ &#40; ≒ Dockerfile &#41; を共有するサービスで、Read に限ればアカウントは不要)
+- Docker Desktop をインストールすると Docker Engine や `docker` コマンドが手に入る
+- 作ったイメージを共有する Saas サービスが Docker Hub
