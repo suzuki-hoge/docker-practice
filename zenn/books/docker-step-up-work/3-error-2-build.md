@@ -8,62 +8,122 @@ Docker にまつわるエラーを調査できるようになりましょう。
 
 このページは具体例を列挙して FAQ のように使うものではなく、イメージとコンテナとプロセスについての理解を深めることでエラーに自力で対処できる力をつけるのが目的です。
 
+実際には いつ どこ なに を調べると事象がわかるという順番ですが、今回はクイズ形式で事象から いつ どこ なに を考えてみます。
+
+:::message
+このページは出力の大半を削り抜粋したものを掲載しています。
+実際はもっと長い出力をじっくり読む必要がありますが、ちゃんと読めばこのページにあるようにちゃんと解決できます。
+:::
+
 ## このページで初登場するコマンド
 特になし
 
-# ビルドがエラーを出す理由
-いくつか考えられますが、いくつか例を挙げると次のようなものがあります。
+# ビルドエラーのサンプルケース
+## e.g. docker build がおかしい
+このワークで使っている Dockerfile をあえて少し壊して `docker build` をしました。
 
-実際には いつ どこ なに を調べると事象がわかるという順番ですが、今回はクイズ形式で事象から いつ どこ なに を考えてみます。
+```
+$ docker build                         \
+    -f docker/mysql/Dockerfile         \
+    -t docker-step-up-work-build_mysql \
+    .
 
-## docker build がおかしい
-次のような可能性があります。
+ > [2/2] COPY my.cnf /etc/my.cnf:
+------
+failed to compute cache key: "/my.cnf" not found: not found
+```
 
-- 単純に `-f` のパスが不一致
-- Dockerfile に書いた `COPY` の相対パスと `docker build` のパスがずれている
+このエラーに直面した場合の いつ どこ なに を考えてみましょう。
 
-:::details ワーク: いつ、どこ、なにを考えてから開く
-- いつ: `docker build` 実行時
-- どこ: ホストマシン
-- なに: Docker Engine ( CLI? todo )
+- いつ: 問題を埋め込んだのは Dockerfile の記述時、エラー発覚は `docker build` の実行時
+- どこ: エラーが表示されるのはホストマシン
+- なに: Dockerfile の `COPY` と `docker build` の `<path>` について調べて修正する
 
-これらは `docker build` が即時失敗するので、容易に気付くことができます。
-ホストマシンのターミナルのエラーをじっくり読めばすぐ解決するでしょう。
+という感じでしょう。
+
+このケースの場合は `docker build` が即時失敗するので、エラーには簡単に気づくことができます。 ( いつ )
+出力もそのまま `docker build` を実行したホストマシンのターミナルに出ているので ( どこ )、ちゃんと読めば Docker についての何かを間違えたことがすぐわかります。( なに )
+
+## e.g. Dockerfile の RUN がおかしい
+架空の Dockerfile を用意して `docker build` をしました。
+
+```txt:Dockerfile
+FROM ubuntu:20.04
+
+RUN apt update && apt get -y vi
+```
+
+```
+$ docker build .
+
+ > [2/2] RUN apt update && apt get -y vi:
+#5 8.257 E: Invalid operation get
+------
+executor failed running [/bin/sh -c apt update && apt get -y vi]: exit code: 100
+```
+
+このエラーに直面した場合の いつ どこ なに を考えてみましょう。
+
+:::details クイズ: 問題を埋め込んだタイミング、エラーの発覚するタイミング、エラーがどこに表示されるか、何について調べて修正すればいいか
+- いつ: 問題を埋め込んだのは Dockerfile の記述時、エラー発覚は `docker build` の実行時
+- どこ: エラーが表示されるのはホストマシン
+- なに: Dockerfile の `RUN` で実行した `apt` について調べて修正する
+
+という感じでしょう。
+
+このケースも いつ と どこ は簡単ですが、なに は先ほどと違います。
+Dockerfile の不備によって `docker build` が失敗していますが、調べて修正するには Linux ( `apt` ) の知識が必要です。
 :::
 
-## Dockerfile の RUN がおかしい
-ここはある意味では無限に可能性がありますが、少しだけ例を挙げてみます。
+# アプローチ
+## ホストマシンのターミナルをよく見る
+このページで例に挙げたようなエラーは、いずれもコマンド実行時にすぐエラーがホストマシンのターミナルにでるので、いつ どこ の判断は簡単な部類です。
+`docker build` を実行したターミナルの出力をよく見れば良いので、特定のコマンドなどは必要ありません。
 
-- `RUN apt get -y vi` と書いている
-  - ( 正: `RUN apt install -y vim` )
+なに を意識すれば直接原因にたどり着くのも難しくはないでしょう。
 
-:::details ワーク: いつ、どこ、なにを考えてから開く
-- いつ: `docker build` 実行時
-- どこ: ホストマシン
-- なに: Linux
-  
-`docker build` 実行時に `vi` のインストールに失敗するので、容易に気付くことができます。
-ホストマシンのターミナルに Linux のエラーが出ているはずなので、そこが調査開始ポイントです。
-:::
+## RUN を崩す
+Dockerfile をデバッグする時はあえて `RUN` を書き崩すのも有効です。
 
-## Dockerfile の CMD がおかしい
-もう一例だけ見てみます。
+`RUN` が 1 つの Dockerfile とは、このように `&&` でコマンドを連続させている書き方のことです。
 
-- PHP 開発サーバを起動するコマンドが `CMD php -S 0.0.0.0:8000` になっている
-  - ( 正: `-t src` などのドキュメントルートの指定が必要 )
+```txt:Dockerfile
+FROM ubuntu:20.04
 
-:::details ワーク: いつ、どこ、なにを考えてから開く
-- いつ: ブラウザなどによるアクセス時
-- どこ: コンテナ
-- なに: PHP
+RUN apt update && apt get -y vi
+```
 
-`CMD` でコンテナ起動時の命令を指定していますが、それに問題があります。
+この Dockerfile を `docker build` したときのエラーは次のようになります。
 
-ただし `CMD` はイメージにただ情報として含まれるだけなので、`docker build` は成功します。
-また、この間違い方だと PHP 開発サーバは起動自体はするので `docker run` も成功します。
-しかしブラウザなどでアクセスした際に、4xx とか 5xx 系のエラーになってしまうでしょう。
+```
+ > [2/2] RUN apt update && apt get -y vi:
+#5 8.257 E: Invalid operation get
+------
+executor failed running [/bin/sh -c apt update && apt get -y vi]: exit code: 100
+```
 
-アクセス時エラーなのでコンテナ内の何らかの出力を探すことになりますが、調べるうちに PHP の起動の仕方が悪かったことがわかるはずです。
-:::
+対して `RUN` を 2 つに分けた Dockerfile とは、このように 1 行ずつ `RUN` を書く書き方のことです。
+
+```txt:Dockerfile
+FROM ubuntu:20.04
+
+RUN apt update
+RUN apt get -y vi
+```
+
+この Dockerfile を `docker build` したときのエラーは次のようになります。
+
+```
+ => ERROR [3/3] RUN apt get -y vi                                                                                                                                                                      0.2s
+------
+ > [3/3] RUN apt get -y vi:
+#6 0.144 E: Invalid operation get
+------
+executor failed running [/bin/sh -c apt get -y vi]: exit code: 100
+```
+
+エラーの範囲が `apt update && apt get -y vi` から `apt get -y vi` に狭くなっていることが確認できます。
+
+デバッグ時にはあえて `RUN` を細かく分けて `docker build` をするというのも有効です、覚えておくと良いでしょう。
 
 # まとめ

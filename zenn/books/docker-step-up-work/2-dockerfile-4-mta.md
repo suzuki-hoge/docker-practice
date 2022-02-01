@@ -9,11 +9,7 @@ PHP のインストールと同様に、このワークで必要になる MTA �
 その際に PHP と MTA の設定ファイルが必要になるため、イメージに設定ファイルを配置する方法を知りましょう。
 
 ## このページで初登場するコマンド
-[Dockerfile](https://matsuand.github.io/docs.docker.jp.onthefly/engine/reference/builder/)
-
-命令 | 意味 | 用途  
-:-- | :-- | :--
-`COPY` | ホストマシンのファイルをイメージにコピーする | 設定ファイルなどをイメージに含める
+特になし
 
 # メール送受信の基礎知識
 ## MUA とは
@@ -59,32 +55,38 @@ todo e
 
 # このワークにおける代替品
 ## MUA とは
-Mail User Agent は、
+Mail User Agent は、なんだろう。todo
 
 ## MTA とは
 Mail Transfer Agent は、メールを送信するコンテナとメールを受信するコンテナに必要です。
 
 メールを送信するコンテナは PHP コンテナなので、そこに SMTP クライアントである `msmtp` と `msmtp-mta` をインストールします。
 
-メールを受信するコンテナは Mail コンテナで、MailHog 自体が SMTP ( MTA を含む ) です。
+メールを受信するコンテナは Mail コンテナで、MailHog 自体が MTA を含む SMTP サーバです。
 
 ## MDA とは
 Mail Delivery Agent は `msmtp-mta` および MailHog に含まれています。
 
 ## MRA とは
-Mail Retrieval Agent は、
+Mail Retrieval Agent は、このワークでは MailHog となります。
 
-# PHP イメージへの MTA インストール
+MailHog コンテナの保持している受信メールをブラウザで確認することになるので、受信プロトコルは IMAP になるでしょう。
+
+## まとめ
+このワークでメール送受信をするために必要なものは 2 つです。
+
+1. 受信側となる MailHog
+2. 送信に必要な SMTP クライアント ( `msmtp` と `msmtp-mta` )
+
+このページでは SMTP クライアントのインストールを行います。
+
+# PHP イメージへの MTA インストールと設定
 ## Dockerfile の追記とビルド
-PHP イメージの Dockerfile に次の `RUN` 命令を追加し `msmtp` と `msmtp-mta` をインストールします。
+PHP イメージの Dockerfile に `msmtp` と `msmtp-mta` のインストールを行う `RUN` 命令の追記が必要になります。
 
-```txt:docker/php/Dockerfile
-RUN apt install -yqq msmtp msmtp-mta
-```
+さらに、インストールに加え PHP が `msmtp` を使うようにするための設定ファイルと、`msmtp` が接続する SMTP サーバを指定するための設定ファイルをイメージに用意なければなりません。
 
-PHP8 のインストールとは違い、インストールに加え PHP が `msmtptodo` を使うようにするための設定ファイルと、`msmtptodo` が接続する SMTP サーバを指定するための設定ファイルをイメージに用意なければなりません。
-
-`mail.ini` と `mailrc` という 2 つのファイルを作成しましょう。
+まずは `mail.ini` と `mailrc` という 2 つのファイルを作成しましょう。
 
 ```
 docker
@@ -113,33 +115,40 @@ port todo
 from "notice@docekr-step-up-work.com"
 ```
 
-これらのファイルを `COPY` 命令でイメージの中に配置するように Dockerfile を変更します。
+これらのファイルをイメージの中に配置する `COPY` 命令の追記も必要になります。
 
-`RUN` による `msmtp` と `msmtp-mta` のインストールと、2 つの設定ファイルの `COPY` 命令を追記します。
+結果的に発生する差分は 3 行です。
 
-`mail.ini` の配置先は `/etc/php/8.0/cli/conf.d/mail.ini` で、
-`mailrc` の配置先は `/etc/msmtprc` です。
 
-`COPY` の相対パスと `docker build` のパスに注意してください。
+1. `apt install -yqq msmtp msmtp-mta` による `msmtp` と `msmtp-mta` のインストール
+2. `mail.ini` を `/etc/php/8.0/cli/conf.d/mail.ini` に配置
+3. `mailrc` を `/etc/msmtprc` に配置
+
+Dockerfile を編集してみましょう。
 
 :::details ワーク: Dockerfile の変更、イメージのビルド
-```txt:docker/php/Dockerfile
-FROM ubuntu:20.04
+順番に特に制約はありません。
 
-RUN apt update                                       \
- && apt install -y software-properties-common        \
- && LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
- && apt update                                       \
- && apt install -y php8.0 php8.0-mysql
+これは人間の理解のしやすさを優先して PHP のインストールと設定、MTA のインストールと設定、という順番にしていますが、`RUN` を 1 つにまとめる方針でも良いでしょう。
+そこは何を重視するかで判断するポイントです。
 
-COPY docker/php/mail.ini /etc/php/8.0/cli/conf.d/mail.ini
-
-RUN apt install -yqq msmtp msmtp-mta
-
-COPY docker/php/mailrc /etc/msmtprc
+```diff txt:docker/php/Dockerfile
+  FROM ubuntu:20.04
+  
+  RUN apt update                                       \
+   && apt install -y software-properties-common        \
+   && LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
+   && apt update                                       \
+   && apt install -y php8.0 php8.0-mysql
+  
++ COPY docker/php/mail.ini /etc/php/8.0/cli/conf.d/mail.ini
+  
++ RUN apt install -yqq msmtp msmtp-mta
+  
++ COPY docker/php/mailrc /etc/msmtprc
 ```
 
-`COPY` を `docker/` から書いたので `docker build` の `<path>` は `.` です。
+この Dockerfile では `COPY` を `docker/php/mail.ini` のように書いたので `docker build` の `<path>` は `.` です。
 
 ```
 $ docker build                       \
@@ -147,9 +156,11 @@ $ docker build                       \
     -t docker-step-up-work-build_php \
     .
 ```
+
+Dockerfile で `COPY` を `mail.ini` と書いたのなら `docker build` の `<path>` は `docker/php` です。
 :::
 
 # まとめ
-- todo
+- メール送信側は SMTP クライアントのインストールと設定が必要である
 - MTA のインストールと設定ファイルが必要になったので、Dockerfile を変更した
 - Dockerfile を変更したので、イメージを再ビルドした

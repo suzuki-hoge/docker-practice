@@ -1,5 +1,5 @@
 ---
-title: "📚 ｜ 🐧 ｜ OS やパッケージ管理コマンドをすぐ把握するには？"
+title: "📚 ｜ 🐧 ｜ OS やパッケージ管理コマンドを把握するには？"
 ---
 
 ## よりみち: Alpine Linux
@@ -7,7 +7,6 @@ title: "📚 ｜ 🐧 ｜ OS やパッケージ管理コマンドをすぐ把握
 適当に接続したコンテナで `yum` を使うか `apt` を使うかわからない、ということがままあります
 
 僕は結構雑に `yum`, `apt`, `apk`, `dnf` とか適当に叩いて見つかったのを使います
-// todo dnf
 
 今回は `ap` まで入力して `<TAB>` をガチャガチャやっていたら `apk` があった、という感じです
 
@@ -108,5 +107,9 @@ BUG_REPORT_URL="http://bugs.alpinelinux.org"
 
 これくらいわかれば十分でしょう
 
-// todo コマンド対応表
+## OS とコマンド対応票
++ yum | centos
++ apt | ubuntu, debian
++ apk | alpine
++ dnf | rhel
 

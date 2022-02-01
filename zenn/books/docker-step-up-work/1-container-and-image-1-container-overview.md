@@ -12,7 +12,7 @@ title: "📚 ｜ 🐳 ｜ コンテナってなに？"
 オプション | 意味 | 用途  
 :-- | :-- | :--
 `-i, --interactive`   | コンテナの標準入力に接続する | コンテナを対話操作する
-`-t, --tty`   | 擬似ターミナルを割り当てる   | todo
+`-t, --tty`   | 擬似ターミナルを割り当てる   | コンテナを対話操作する ( todo )
 
 [`docker ps [optioin]`](https://matsuand.github.io/docs.docker.jp.onthefly/engine/reference/commandline/ps/)
 
@@ -120,11 +120,24 @@ c8cabbe7b1ae    ubuntu:20.04    "bash"     4 minutes ago    Up 4 minutes        
 
 コンテナは起動すると、受けた命令を実行してそのプロセスを作ります。
 
-todo e
+```txt:todo picture
++---- コンテナ ----+
+|  +- プロセス -+  |
+|  |   bash   |  |
+|  +----------+  |
++----------------+
+```
 
 そのプロセスが生きている限りコンテナは生き続け、プロセスの終了とともにコンテナは終了します。
 
-todo e
+
+```txt:todo picture
++---- コンテナ ----+
+|                |
+|                |     →     終了
+|                |
++----------------+
+```
 
 `bash` が `exit` で終了したため、それが命令だったコンテナは役目を終えて終了したのです。
 
@@ -180,7 +193,7 @@ $ docker run --interactive --tty ubuntu:20.04 bash
 `--interactive` は todo のためのオプションで、`--tty` は todo のためのオプションです。
 
 `bash` など対話で操作する命令には `-it` が必要になります。
-付け忘れると todo してしまいます。
+付け忘れると標準入出力が使えないので即時ホストマシンのターミナルに戻ってきてしまいます。
 
 ```
 $ docker run ubuntu:20.04 bash
@@ -196,5 +209,3 @@ $
 - コンテナは `docker run` で起動する
 - 1 つのコンテナは `docker run` に命じられた命令 1 つを実行する
 - その命令が終了すると、コンテナも終了する
-
-todo e

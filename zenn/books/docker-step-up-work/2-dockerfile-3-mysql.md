@@ -206,7 +206,6 @@ $ docker run                        \
     --name mysql                    \
     --rm                            \
     --platform=linux/amd64          \
-    -d                              \
     -e MYSQL_ROOT_PASSWORD=password \
     -e MYSQL_USER=hoge              \
     -e MYSQL_PASSWORD=password      \

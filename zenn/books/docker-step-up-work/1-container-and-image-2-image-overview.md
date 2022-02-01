@@ -164,4 +164,6 @@ https://zenn.dev/suzuki_hoge/books/2021-07-m1-mac-4ede8ceb81e13aef10cf
 - Docker Hub で探して、`docker run` ( `docker pull` ) で取得して使うことができる
 - `docker run` はイメージからコンテナを起動するコマンドである  
 
-todo e
+```txt:todo picture
+イメージ    --- docker run --->    コンテナ
+```
