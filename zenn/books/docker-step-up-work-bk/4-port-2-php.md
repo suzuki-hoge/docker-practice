@@ -73,6 +73,6 @@ http://localhost:18000 をホストマシンのブラウザで開いてみまし
 
 ## MySQL のコンテナに .cnf を入れよう // todo
 
-- [step3](books/docker-step-up-work/bk/step3.mder-step-up-work/bk/step3.md)
-- [step5](books/docker-step-up-work/bk/step5.mder-step-up-work/bk/step5.md)
+- [step3](books/docker-step-up-work-bk/bk/step3.mder-step-up-work/bk/step3.md)
+- [step5](books/docker-step-up-work-bk/bk/step5.mder-step-up-work/bk/step5.md)
 
