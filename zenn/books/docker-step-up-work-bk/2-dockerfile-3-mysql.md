@@ -94,43 +94,6 @@ docker-step-up-work-build_php      latest    176ddd804a12    2 hours ago    303M
 :::
 
 ## docker build のパスと COPY
-`docker build` の `<path>` は、Dockerfile の `COPY` のホストマシンの相対パスをどこから辿るかに影響します。
-
-次のようなディレクトリ構成の場合 `COPY` を `docker/mysql` から書いたなら、`docker build` では `.` を指定しなければビルドが失敗します。
-
-```
-$ tree .                docker build [option] .
-
-docker
-`-- mysql
-    |-- Dockerfile      COPY (./)docker/mysql/my.cnf /etc/my.cnf
-    `-- my.cnf
-```
-
-Dockerfile にディレクトリ構成を書きたくないのなら、`docker build` の `<path>` の方を調整する必要があります。
-
-```
-$ tree .                docker build [option] docker/mysql
-
-docker
-`-- mysql
-    |-- Dockerfile      COPY (docker/mysql/)my.cnf /etc/my.cnf
-    `-- my.cnf
-```
-
-もしくは `docker build` を実行するディレクトリを Dockerfile のある場所と同じにする必要があります。
-
-```
-$ tree .
-
-docker
-`-- mysql               docker build [option] .
-    |-- Dockerfile      COPY (./)my.cnf /etc/my.cnf
-    `-- my.cnf
-```
-
-どの方法を用いても良いですが、僕は `cd` せずかつ `.` で済ませられるのが楽なので最初の例をよく使います。
-ディレクトリ名を `docker/mysql` から `docker/db` に変えたりすると Dockerfile が壊れますが、そうそうあることではないので許容しています。
 
 複数の Dockerfile を扱うときや Docker Compose を使うときに、この仕様を知らないとビルド失敗になりやすいので覚えておくと良いでしょう。
 
