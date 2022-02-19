@@ -1,50 +1,41 @@
 ---
 title: "3-1: foo"
 ---
-この章の目標は Docker の概要とイメージとコンテナについて簡単に理解することです
 
-# 導入
-VirtualBox などの仮想マシンは Hypervisor という仮想化ソフトをホスト OS の上で動かしその上でゲスト OS を動かす仕組みになっていますが、Docker コンテナは Docker Engine の上で動きます
+`docker container run` の結果を見ると、次のようなエラーを出力してコンテナは起動していません。
 
-Docker コンテナはホストマシンのカーネルを利用しつつもプロセスやネットワークを隔離することで、あたかも別のマシンが動いているように振る舞うことができます
+```:Host Machine
+$ docker container run   \
+  --platform=linux/amd64 \
+  --name mysql           \
+  mysql:5.7
 
-![image](/images/slide/slide.001.jpeg)
+2022-02-06 03:20:23+00:00 [ERROR] [Entrypoint]: Database is uninitialized and password option is not specified
+    You need to specify one of the following:
+    - MYSQL_ROOT_PASSWORD
+    - MYSQL_ALLOW_EMPTY_PASSWORD
+    - MYSQL_RANDOM_ROOT_PASSWORD
+```
 
-ほげめも
-- https://knowledge.sakura.ad.jp/13265/
-- https://aws.amazon.com/jp/docker/
+`You need to specify one of the following:` に対応するために、`-e` による環境変数の指定を行います。
 
-## 特徴
-ゲスト OS を起動しないという点に注目すると、次のような特徴が理解しやすくなるでしょう
+環境変数の変数名と意味は [Docker Hub の該当イメージのトップページ](https://hub.docker.com/_/mysql) に行けば説明がありますが、このページではとりあえず `MYSQL_ROOT_PASSWORD` だけ指定することにします。それ以外は todo で決定します。
 
-### 起動が早い
-ゲスト OS の起動を行わないため、Docker コンテナの方が起動が速いです
+```:Host Machine
+$ docker container run                \
+  --platform=linux/amd64              \
+  --name mysql                        \
+  -e MYSQL_ROOT_PASSWORD=rootpassword \
+  mysql:5.7
+  
+Version: '5.7.36'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server (GPL)
+```
 
-![image](/images/slide/slide.002.jpeg)
+大量の出力の最後に次のように出ていれば、MySQL サーバが起動したコンテナが正常に起動しています。
 
-そのためコンテナ構築のトライ & エラーが楽だったり、気軽にコンテナを起動することが可能だったりします
+```:Host Machine
+Version: '5.7.36'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server (GPL)
+```
 
-テストを実行する時だけ起動して数分で終了する、という小さいサイクルでクリーンな環境を用意することができます
-
-### デプロイしやすい
-VirtualBox などの場合、デプロイ先が Hypervisor であればデプロイは簡単でしょうが、デプロイ先のサーバをローカルで擬似的に再現するという使い方もあります
-
-その場合はデプロイ内容にゲスト OS は含めないため、アプリケーションだけをデプロイする方法が必要になったり、デプロイ先との状態の不一致などが発生する可能性があります
-
-![image](/images/slide/slide.003.jpeg)
-
-Docker コンテナは Apache などと同じくただの 1 プロセスなので、アプリケーションをデプロイしやすいです
-
-![image](/images/slide/slide.004.jpeg)
-
-### ホスト OS の違いが影響する可能性がある
-Docker コンテナは実際はホスト OS で動いているので、その違いがコンテナに影響してしまう可能性があります
-
-![image](/images/slide/slide.005.jpeg)
-
-そのため、Docker は Windows では相性が悪いなどの話もあるようです^[持っていないので実体験としてはわかりませんが、GitBash などで利用しているとまれに細かい挙動が違ったりすることがあるようです]^[WSL 環境はわかりません]
-
-最近では M1 Mac で Docker を動かすのが大変というはなしもよく見かけます
-
-仮想化技術のはずなのになんでホスト OS が違うとそんなに違うの、という疑問の理由の一つでしょう
+todo e
 

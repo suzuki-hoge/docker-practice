@@ -3,7 +3,7 @@ services:
   php:
     container_name: docker-practice-php
     build:
-      context: ../..
+      context: .
       dockerfile: docker/php/Dockerfile
     ports:
       - '18000:8000'
@@ -22,7 +22,7 @@ services:
   db:
     container_name: docker-practice-db
     build:
-      context: ../..
+      context: .
       dockerfile: docker/db/Dockerfile
     volumes:
       - type: volume
