@@ -19,7 +19,7 @@ $ docker container run \
     --tty              \
     --rm               \
     --name ubuntu1     \
-    ubuntu
+    ubuntu:20.04
 
 # ps
   PID TTY          TIME CMD
@@ -37,7 +37,7 @@ $ docker container run \
     --detach           \
     --rm               \
     --name nginx1      \
-    nginx
+    nginx:1.21
     
 $ docker container exec 
     --interactive      \
@@ -67,7 +67,7 @@ $ docker container run \
     --tty              \
     --rm               \
     --name nginx2      \
-    nginx              \
+    nginx:1.21         \
     bash
     
 # apt update
@@ -117,7 +117,7 @@ $ docker container run \
     --detach           \
     --rm               \
     --name nginx3      \
-    nginx
+    nginx:1.21
 ```
 
 デフォルト命令で起動する `nginx` は Web サーバなので、一度実行したら **メインプロセスは止まれと言うまで止まりません**。
@@ -141,7 +141,7 @@ $ docker container run \
     --tty              \
     --rm               \
     --name nginx4      \
-    nginx              \
+    nginx:1.21         \
     bash
 
 #
@@ -170,7 +170,7 @@ $ docker container run \
 $ docker container run \
     --rm               \
     --name nginx5      \
-    nginx              \
+    nginx:1.21         \
     ls /etc/nginx
 
 $

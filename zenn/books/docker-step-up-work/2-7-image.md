@@ -2,7 +2,7 @@
 title: "２部: イメージの基礎"
 ---
 
-todo 〜〜のためののイメージについて理解します。
+コンテナの基礎については一通り学べたので、２部の残り２ページはイメージと Dockerfile について学びます。
 
 # このページで初登場するコマンドとオプション
 ## イメージを取得する
@@ -23,8 +23,6 @@ $ docker image ls [option]
 $ docker images [option]
 ```
 
-# イメージとは ( 再掲 )
-
 # イメージを探すには
 基本的に、イメージは [Docker Hub](https://hub.docker.com/) で検索して選ぶことになるでしょう。
 
@@ -43,7 +41,7 @@ $ docker image pull [option] <image>
 
 が、`docker container run` は `docker image pull` などいくつかのコマンドの集合体のような便利なコマンドなので、あえて `docker image pull` だけを行う必要は基本的にはありません。
 
-この Book では `docker image pull` は利用せず、`docker container run` でまとめて扱うこととします。
+この本では `docker image pull` は利用せず、`docker container run` でまとめて実行することとします。
 
 # イメージを指定するには TAG を使う
 `docker container run` などのコマンドで `<image>` を指定する場合は、`IMAGE ID` や `REPOSITORY:TAG` 形式などいくつかの方法で指定することができます。
@@ -61,8 +59,8 @@ $ docker container run [option] <image> [command]
 
 ```:Host Machine
 $ docker container run \
+    --name ubuntu1     \
     --rm               \
-    --name ubuntu      \
     ubuntu:22.04       \
     cat /etc/lsb-release
 
@@ -74,8 +72,8 @@ DISTRIB_DESCRIPTION="Ubuntu Jammy Jellyfish (development branch)"
 
 ```:Host Machine
 $ docker container run \
+    --name ubuntu2     \
     --rm               \
-    --name ubuntu      \
     ubuntu:21.10       \
     cat /etc/lsb-release
 
@@ -90,8 +88,8 @@ DISTRIB_DESCRIPTION="Ubuntu 21.10"
 
 ```:Host Name
 $ docker container run \
+    --name ubuntu3     \
     --rm               \
-    --name ubuntu      \
     ubuntu:latest      \
     cat /etc/lsb-release
 
@@ -103,8 +101,8 @@ DISTRIB_DESCRIPTION="Ubuntu 20.04.3 LTS"
 
 ```:Host Name
 $ docker container run \
+    --name ubuntu4     \
     --rm               \
-    --name ubuntu      \
     ubuntu             \
     cat /etc/lsb-release
 
@@ -115,23 +113,23 @@ DISTRIB_DESCRIPTION="Ubuntu 20.04.3 LTS"
 ```
 
 # 使う TAG を決めるには
-Ubuntu のバージョンは 2022 年 2 月時点ではそれぞれ次の通りです。
+たとえば Ubuntu のバージョンは 2022 年 2 月時点ではそれぞれ次の通りです。
 
 - `22.04` → 開発中 ( コードネーム Jellyfish )
 - `21.10` → 最新リリース
 - `20.04` → 長期サポート ( Long Term Support )
 
-状況に応じて、たとえば次のように考えて選択すると良いでしょう。
+状況に応じて、次のように考えて選択すると良いでしょう。
 
 スタンス                 | 構築フェーズ              | 保守フェーズ                       
 :--                      | :--                       | :--                                
 常に新しいものを使いたい | `22.04` や `21.10` を指定 | 最新発表があったら手動で更新       
 常に LTS を使いたい      | `latest` を指定           | `latest` の実態が更新されるのに従う
-常に今の LTS を使いたい  | `20.04` を指定            | 次の LTS 発表時に手動で更新
+常に今の LTS を使いたい  | `20.04` を指定            | ここから変更しない
 
 この考え方は、Ubuntu に限らず PHP コンテナや MySQL コンテナや Apache コンテナなど、全てのイメージ選択において同様です。
 
-この Book ではこの先も同じ結果が得られることを期待して、`latest` ではなく `20.04` を明示して使うことにします。
+この本ではこの先も長く同じ結果が得られ続けることを期待して、`latest` ではなく `20.04` を明示しています。
 
 # ローカルにある取得済みのイメージ一覧を確認するには
 ホストマシンにあるイメージ一覧を確認するには、`docker image ls` を使います。
@@ -140,15 +138,14 @@ Ubuntu のバージョンは 2022 年 2 月時点ではそれぞれ次の通り�
 $ docker image ls
 
 REPOSITORY   TAG      IMAGE ID       CREATED        SIZE
-nginx        latest   2e7e2ec411a6   2 weeks ago    134MB
+nginx        1.21     2e7e2ec411a6   3 weeks ago     134MB
 ubuntu       22.04    63a463683606   4 weeks ago    70.4MB
 ubuntu       21.10    2a5119fc922b   4 weeks ago    69.9MB
 ubuntu       20.04    9f4877540c73   4 weeks ago    65.6MB
 ubuntu       latest   9f4877540c73   4 weeks ago    65.6MB
-centos       latest   e6a0117ec169   4 months ago   272MB
 ```
 
-一度も `docker image pull` を実行していない `ubuntu` のイメージも、ローカルに取得してあることが確認できます。
+一度も `docker image pull` は実行していませんが、`docker container run` によりイメージをローカルに取得してあることが確認できます。
 
 また、`ubuntu:20.04` と `ubuntu:latest` の `IMAGE ID` が全く同じであることも確認できます。
 これは２つのコンテナが「動かしてみたら同じっぽい」のではなく「全く同じイメージである」という意味になります。
@@ -156,32 +153,43 @@ centos       latest   e6a0117ec169   4 months ago   272MB
 # どんなイメージか把握するには
 イメージの中身を詳細に把握するのは難しいですが、それでもいくつかの情報は読み取れます。
 
-まずは対応しているホスト OS のアーキテクチャが何かです。
+## 対応アーキテクチャは Docker Hub でわかる
+対応しているホスト OS のアーキテクチャが何かは、次の部分で把握できます。
 
 ![image](/images/docker-hub-ubuntu-archs.png)
 
-これは todo で説明した通りですが、Mac ( M1 ) の場合は気になるポイントになるでしょう。
+これは [２部: ](2-3-container-boot) で説明した通りですが、M1 Mac の場合は気になるポイントになるでしょう。
 
-そして `DIGEST` のいずれかを選択して詳細画面を開くと、イメージのレイヤーが確認できます。
+## レイヤーも Docker Hub である程度わかる
+`DIGEST` のいずれかを選択して詳細画面を開くと、イメージのレイヤーが確認できます。
 
 ![image](/images/docker-hub-ubuntu-cmd.png)
 
-Dockerfile については todo で解説しますが、`CMD ["bash"]` の表記からデフォルト命令が `bash` であることが読み取れます。
-これは `docker run` で `[command]` を指定しなかった場合は `bash` とする、という情報がイメージに含まれていることを意味します。
+Dockerfile については [２部: ](2-8-dockerfile) で解説しますが、`CMD ["bash"]` の表記からデフォルト命令が `bash` であることが読み取れます。
 
 このイメージはシンプルな構成ですが、セットアップ手順や環境変数が読み取れるような場合もあります。
 
-[`Rails の Tags`](https://hub.docker.com/_/rails?tab=tags) ページから `5.0.1` を選んでレイヤーを確認してみると、実に 22 ものレイヤーがあることが確認できます。
+[`Rails の Tags` ページ](https://hub.docker.com/_/rails?tab=tags) から `5.0.1` を選んでレイヤーを確認してみると、実に 22 ものレイヤーがあることが確認できます。
 
 ![image](/images/rails-layers-1.png)
 
 この先のページで Dockerfile が簡単にでも読み書きできるようになると、なんとなくの情報はかなり読み取れるようになります。
 
+## Dockerfile はケースバイケース
 最後に Dockerfile についてですが、これは `REPOSITORY` によるとしか言いようがありません。
 
 Rails のように [`5.0.1` の Dockerfile はこれだ](https://github.com/docker-library/rails/blob/e16e955a67f48c1e8dc0af87ba6c0b7f8302bad2/Dockerfile) と説明ページに書いてあれば見ることができる、くらいに覚えておくと良いでしょう。
 
-ちなみにレイヤーのページで確認できる内容は Dockerfile そのものではありません。
-Dockerfile によって積み上げられたレイヤーの情報だと言うことを理解しておくと良いでしょう。
+ちなみに、**レイヤーのページで確認できる内容は Dockerfile そのものではありません**。
+Dockerfile によって積み上げられたレイヤーの情報だということを理解しておきましょう。
 
-レイヤーについては todo で詳しく確認します。
+レイヤーについては [２部: ](2-8-dockerfile) で詳しく確認します。
+
+# まとめ
+簡潔にまとめます。
+
+- イメージは Docker Hub で探す
+- イメージには `TAG` が付いている
+- どんなイメージなのかは Docker Hub である程度は把握できる  
+
+忘れてしまった時は立ち返ってみてください。

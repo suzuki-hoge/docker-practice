@@ -61,7 +61,7 @@ Windows の場合は `cat /tmp/hello.txt` のような空白を含む命令を G
 
 ```:Host Machine
 $ docker container run \
-    ubuntu             \
+    ubuntu:20.04       \
     cat /hello.txt
 
 cat: /hello.txt: No such file or directory

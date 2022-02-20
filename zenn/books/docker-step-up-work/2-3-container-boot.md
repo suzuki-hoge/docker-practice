@@ -35,7 +35,7 @@ $ docker run [option] <image> [command]
 $ docker container run \
     --interactive      \
     --tty              \
-    ubuntu
+    ubuntu:20.04
 
 # 
 ```
@@ -46,7 +46,7 @@ Docker に限らず、Linux コマンドのオプションは `-h / --help` や 
 短い方のオプションは複数を連続して指定することが可能で、上記のコマンドは旧オプションと合わせれば最短で次のように実行することも可能です。
 
 ```:Host Machine
-$ docker run -it ubuntu
+$ docker run -it ubuntu:20.04
 ```
 
 ですが、この本では長く明瞭な新コマンドを使っているのと同じ意図で、オプションも全て長い方で指定することにします。
@@ -74,7 +74,7 @@ DISTRIB_DESCRIPTION="Ubuntu 20.04.3 LTS"
 
 ```:Host Machine
 $ docker container run \
-    ubuntu
+    ubuntu:20.04
 
 $ 
 ```
@@ -92,7 +92,7 @@ $
 $ docker container run \
     --detach           \
     --publish 8080:80  \
-    nginx
+    nginx:1.21
 
 606ccda5b16a0f6ebb8496e20a2abc1da40a48ab4f43aef8bc6d0117ce65fad1
 
@@ -126,7 +126,7 @@ $ docker container run \
     --rm               \
     --detach           \
     --publish 8080:80  \
-    nginx
+    nginx:1.21
 
 974b0b8a40d8d1a3c5b693720982c1a47ba948272e124da75c822f0ad0f4e875
 
@@ -158,7 +158,7 @@ $ docker container run \
     --rm               \
     --detach           \
     --publish 8080:80  \
-    nginx
+    nginx:1.21
 
 1144303f9d718b35bf7a354f51872dde18bffbcdd8ca900a2f7efb5c9fe62d97
 
@@ -170,8 +170,8 @@ $
 ```:Host Machine
 $ docker container ls
 
-CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                  NAMES
-1144303f9d71   nginx     "/docker-entrypoint.…"   35 seconds ago   Up 35 seconds   0.0.0.0:8080->80/tcp   web-server
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                  NAMES
+1144303f9d71   nginx:1.21     "/docker-entrypoint.…"   35 seconds ago   Up 35 seconds   0.0.0.0:8080->80/tcp   web-server
 ```
 
 この `NAMES` でもコンテナを指定することができるので、コンテナ停止などのコンテナを操作する系のコマンド実行時にわざわざ `CONTAINER ID` を調べる手間を省けます。
@@ -209,7 +209,7 @@ $ docker container run \
     --name web-server  \
     --rm               \
     --detach           \
-    nginx
+    nginx:1.21
 ```
 
 Web サーバの起動ではなく、`bash` を使ってコンテナの中を確認したい時 ( 例２ )
@@ -220,7 +220,7 @@ $ docker container run \
     --rm               \
     --interactive      \
     --tty              \
-    nginx              \
+    nginx:1.21         \
     bash
 ```
 

@@ -26,7 +26,7 @@ $ docker container run \
     --detach           \
     --rm               \
     --name nginx1      \
-    nginx
+    nginx:1.21
 ```
 
 ２つめの Nginx コンテナを起動します。
@@ -36,7 +36,7 @@ $ docker container run \
     --detach           \
     --rm               \
     --name nginx2      \
-    nginx
+    nginx:1.21
 ```
 
 コンテナ一覧を確認すると、`CONTAINER ID` の異なる２つのコンテナが起動していることが確認できます。
@@ -44,9 +44,9 @@ $ docker container run \
 ```:Host Machine
 $ docker container ls
 
-CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
-770f08892af6   nginx     "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   80/tcp    nginx2
-abff10020aa4   nginx     "/docker-entrypoint.…"   7 seconds ago   Up 6 seconds   80/tcp    nginx1
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+770f08892af6   nginx:1.21     "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   80/tcp    nginx2
+abff10020aa4   nginx:1.21     "/docker-entrypoint.…"   7 seconds ago   Up 6 seconds   80/tcp    nginx1
 ```
 
 `nginx1` コンテナを削除して再度 `nginx1` という名前でコンテナを起動します。
@@ -59,7 +59,7 @@ $ docker container run \
     --detach           \
     --rm               \
     --name nginx1      \
-    nginx
+    nginx:1.21
 ```
 
 名前は同じですが、先ほどとは `CONTAINER ID` が違うので別のコンテナです。
@@ -67,9 +67,9 @@ $ docker container run \
 ```:Host Machine
 $ docker container ls
 
-CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
-4f37cff849da   nginx     "/docker-entrypoint.…"   5 seconds ago   Up 5 seconds   80/tcp    nginx1
-770f08892af6   nginx     "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   80/tcp    nginx2
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+4f37cff849da   nginx:1.21     "/docker-entrypoint.…"   5 seconds ago   Up 5 seconds   80/tcp    nginx1
+770f08892af6   nginx:1.21     "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   80/tcp    nginx2
 ```
 
 同じイメージから起動しても、同じ名前で起動しても、**コンテナは起動するたびに新しい別物** だということが確認できました。
@@ -85,7 +85,7 @@ $ docker container run \
     --tty                \
     --rm                 \
     --name ubuntu1       \
-    ubuntu               \
+    ubuntu:20.04         \
     bash
 
 #
@@ -97,7 +97,7 @@ $ docker container run \
     --tty                \
     --rm                 \
     --name ubuntu2       \
-    ubuntu               \
+    ubuntu:20.04         \
     bash
 
 #

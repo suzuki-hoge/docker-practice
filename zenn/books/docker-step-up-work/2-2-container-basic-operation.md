@@ -96,7 +96,7 @@ $ docker container run --rm hello-world
 ```:Host Machine
 $ docker container run \
     --publish 8080:80  \
-    nginx
+    nginx:1.21
 
 2022/02/13 23:12:57 [notice] 1#1: start worker processes
 ```
@@ -140,11 +140,11 @@ $ docker container ls [option]
 ```:Host Machine
 $ docker container ls
 
-CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                  NAMES
-7fbae1e2219d   nginx     "/docker-entrypoint.…"   6 minutes ago   Up 6 minutes   0.0.0.0:8080->80/tcp   amazing_brahmagupta
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
+7fbae1e2219d   nginx:1.21     "/docker-entrypoint.…"   6 minutes ago   Up 6 minutes   0.0.0.0:8080->80/tcp   amazing_brahmagupta
 ```
 
-`IMAGE` が `nginx` と表示されているコンテナが１つ起動していることが確認できます。
+`IMAGE` が `nginx:1.21` と表示されているコンテナが１つ起動していることが確認できます。
 
 `CONTAINER ID` は `7fbae1e2219d` で `NAMES` は `amazing_brahmagupta` となっていますが、これは起動するたびにランダムで割り振られます。
 
@@ -196,8 +196,8 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 $ docker container ls \
     --all
     
-CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS                     PORTS     NAMES
-7fbae1e2219d   nginx     "/docker-entrypoint.…"   18 seconds ago   Exited (0) 6 seconds ago             amazing_brahmagupta
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                     PORTS     NAMES
+7fbae1e2219d   nginx:1.21     "/docker-entrypoint.…"   18 seconds ago   Exited (0) 6 seconds ago             amazing_brahmagupta
 ```
 
 `--all` オプションをつけない場合の確認範囲はこのように、
