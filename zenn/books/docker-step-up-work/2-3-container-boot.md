@@ -206,6 +206,7 @@ $ docker container run [option] <image> [command]
 
 ```:Host Machine
 $ docker container run \
+    --name web-server  \
     --rm               \
     --detach           \
     nginx
@@ -215,6 +216,7 @@ Web サーバの起動ではなく、`bash` を使ってコンテナの中を確
 
 ```:Host Machine
 $ docker container run \
+    --name nginx-bash  \
     --rm               \
     --interactive      \
     --tty              \
@@ -289,3 +291,10 @@ https://zenn.dev/suzuki_hoge/books/2021-12-m1-docker-5ac3fe0b1c05de
 `--platform`    | 必要な場合のみ指定   | Intel or AMD CPU なら検討不要、見ても無視可<br>ARM CPU ならケースバイケース
 
 忘れてしまった時は立ち返ってみてください。
+
+:::details このページで作成したものの掃除
+```:Host Machine
+$ docker container rm --force \
+    web-server nginx-bash
+```
+:::
