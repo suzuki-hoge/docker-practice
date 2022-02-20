@@ -31,8 +31,8 @@ $ docker exec [option] <container> command
 $ docker container run \
     --interactive      \
     --tty              \
-    --rm               \
     --name ubuntu1     \
+    --rm               \
     ubuntu:20.04       \
     bash
 

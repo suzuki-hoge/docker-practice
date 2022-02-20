@@ -17,8 +17,8 @@ Ubuntu コンテナを起動しデフォルト命令の `bash` が使える状�
 $ docker container run \
     --interactive      \
     --tty              \
-    --rm               \
     --name ubuntu1     \
+    --rm               \
     ubuntu:20.04
 
 # ps
@@ -35,8 +35,8 @@ Nginx コンテナを起動しデフォルト命令の Web サーバが起動し
 ```:Host Machine
 $ docker container run \
     --detach           \
-    --rm               \
     --name nginx1      \
+    --rm               \
     nginx:1.21
     
 $ docker container exec 
@@ -65,8 +65,8 @@ Nginx コンテナをデフォルト命令ではなく `bash` を指定して起
 $ docker container run \
     --interactive      \
     --tty              \
-    --rm               \
     --name nginx2      \
+    --rm               \
     nginx:1.21         \
     bash
     
@@ -115,8 +115,8 @@ Nginx のコンテナをデフォルト命令で起動します。
 ```:Host Machine
 $ docker container run \
     --detach           \
-    --rm               \
     --name nginx3      \
+    --rm               \
     nginx:1.21
 ```
 
@@ -139,8 +139,8 @@ $ docker container run \
 $ docker container run \
     --interactive      \
     --tty              \
-    --rm               \
     --name nginx4      \
+    --rm               \
     nginx:1.21         \
     bash
 
@@ -168,8 +168,8 @@ $ docker container run \
 
 ```:Host Machine
 $ docker container run \
-    --rm               \
     --name nginx5      \
+    --rm               \
     nginx:1.21         \
     ls /etc/nginx
 

@@ -24,8 +24,8 @@ title: "２部: コンテナの状態保持"
 ```:Host Machine
 $ docker container run \
     --detach           \
-    --rm               \
     --name nginx1      \
+    --rm               \
     nginx:1.21
 ```
 
@@ -34,8 +34,8 @@ $ docker container run \
 ```:Host Machine
 $ docker container run \
     --detach           \
-    --rm               \
     --name nginx2      \
+    --rm               \
     nginx:1.21
 ```
 
@@ -57,8 +57,8 @@ $ docker stop \
     
 $ docker container run \
     --detach           \
-    --rm               \
     --name nginx1      \
+    --rm               \
     nginx:1.21
 ```
 
@@ -83,8 +83,8 @@ Ubuntu イメージからメインプロセスが `bash` のコンテナを２�
 $ docker container run \
     --interactive        \
     --tty                \
-    --rm                 \
     --name ubuntu1       \
+    --rm                 \
     ubuntu:20.04         \
     bash
 
@@ -95,8 +95,8 @@ $ docker container run \
 $ docker container run \
     --interactive        \
     --tty                \
-    --rm                 \
     --name ubuntu2       \
+    --rm                 \
     ubuntu:20.04         \
     bash
 

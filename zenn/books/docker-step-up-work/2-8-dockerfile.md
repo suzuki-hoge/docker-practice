@@ -2,7 +2,9 @@
 title: "２部: Dockerfile の基礎"
 ---
 
-イメージのレイヤーを重ねるための Dockerfile について理解します。
+２部の最後は Dockerfile について学びます。
+
+ここまでの基礎知識と Dockerfile の読み書きをきちんと理解できれば、もう頑張って理解するフェーズは終わり、あとは特定の用途に合わせて機能を知るだけです。
 
 # このページで初登場するコマンドとオプション
 ## イメージをビルドする
@@ -29,39 +31,44 @@ $ docker image history [option] <image>
 $ docker history [option] <image>
 ```
 
-### オプション
-このページで新たに使うオプションはなし
-
-# イメージを作成する必要性
+# Dockerfile の必要性と有用性
 ここまでで次のことを理解しました。
 
 - コンテナ内で行った作業は、コンテナ終了とともに全て消える
 - イメージには `.img` のような実態はなく、レイヤーという情報の積み重なったものである
 
 しかし Docker Hub にある公式イメージなどは軽量にするためにレイヤーが最低限しか積み上がっておらず、あまり多機能ではありません。
+たとえば Ubuntu コンテナには `vi` も `curl` も入っていませんでした。
 
-そこで「公式イメージでは十分なセットアップが得られない場合は毎回コンテナを起動してからセットアップする」というアプローチを採用すると無駄が多すぎてしまうので、あらかじめ必要なセットアップを済ませたイメージを自分で作成する必要が出てきます。
+そこで「公式イメージでは十分なセットアップが得られない」場合に「あらかじめ必要なセットアップを済ませたイメージを自分で作成しておく」というアプローチを取ることになります。
 
-イメージを作成するには Dockerfile というテキストファイルを用います。
-Dockerfile により既存のイメージにレイヤーを自由に積み重ねられるため、イメージをゼロから作る労力を払わずに極めて低コストで自分に都合の良いイメージを作成することができるようになります。
+Dockerfile は既存のイメージ ( = レイヤーたち ) に追加でレイヤーを乗せることができるるので、OS 設定などの労力を払わずに簡単にイメージを作成することができます。
 
-# Dockerfile を作る
+# Dockerfile の基本の命令
+Dockerfile にはいくつかの命令句がありますが、全てを一度に覚える必要はないため、代表的なものをいくつか学びます。
+
+- `FROM: ベースイメージを指定する`
+- `RUN: 任意のコマンドを実行する`
+- `COPY: ホストマシンのファイルをイメージに追加する`
+- `CMD: デフォルト命令を指定する`
+
+`Dockerfile` というテキストファイルを作成し、１つずつ説明します。
+
 ## FROM: ベースイメージを指定する
-Dockerfile は拡張子はなく、一般的には用途の違う Dockerfile はディレクトリを分けて管理することが多いため、ほぼ `Dockerfile` という名前で作られます。
+`FROM` はベースになるイメージを指定する命令です。
 
-適当なディレクトリを用意して次の内容で `Dockerfile` を作成します。
+次の `Dockerfile` は「これから `ubuntu:20.04` のレイヤーの上にレイヤーを乗せる」という意味になります。
 
-```Dockerfile
+```Dockerfile:Dockerfile
 FROM ubuntu:20.04
 ```
 
-Dockerfile は `FROM` という「レイヤーを積む土台イメージを指定する命令」で始まります。
+Dockerfile は必ず `FROM` で始まります。
 
 ## RUN: 任意のコマンドを実行する
-コンテナに必要なコマンドが不足している場合などは `RUN` を使って解決します。
+`RUN` は Linux のコマンドを実行してその結果をレイヤーとする命令です。
 
-`ubuntu:20.04` コンテナを起動しても `vi` がインストールされておらず何かと不自由するので、ためしに `vi` をインストールすることにします。
-次の内容に `Dockerfile` を更新します。
+たとえば `ubuntu:20.04` イメージに `vi` をインストールするレイヤーを重ねるには、次のような `Dockerfile` を書きます。
 
 ```Dockerfile:Dockerfile
 FROM ubuntu:20.04
@@ -70,21 +77,24 @@ RUN apt update
 RUN apt install -y vim
 ```
 
-Dockerfile の `RUN` は「任意のコマンドを実行させレイヤーを重ねる命令」です。
+:::message
+`RUN` で `apt` を使うのか、それとも `yum` など他のパッケージマネージャを使うのかは、ベースイメージによって決まります。
 
-イメージに「`vi` をインストールした」というレイヤーを重ねておくことで、コンテナを起動するたびに `apt install update` と `apt install -y vim` を実行する必要がなくなります。
+一度 `ubuntu:20.04` を `bash` で起動して OS が何かを調べておくなどするのが基本です。
+:::
 
-## COPY: ホストマシンのファイルをイメージに含める
-コンテナに設定ファイルなどを配置したい場合は `COPY` を使って解決します。
+`RUN` により「コンテナを起動するたびに `vim` をインストールする」という手間を解決できます。
 
-`ubuntu:20.04` の `bash` を起動したときのプロンプトに現在ディレクトリだけを表示したいので、ためしに `.bashrc` を配置することにします。
-まずはホストマシンで `.bashrc` を作成します。
+## COPY: ホストマシンのファイルをイメージに追加する
+`COPY` はホストマシンのファイルをイメージに追加する命令です。
 
-```bash:.bashrc ( Host Machine )
-export PS1='\w # '
+たとえば `ubuntu:20.04` イメージに行番号を表示する設定を記した `.vimrc` を配置するには、まずホストマシンに `.vimrc` を作ります。
+
+```txt:.vimrc ( Host Machine )
+set number
 ```
 
-次に `Dockerfile` を次の内容に更新します。
+次に、`Dockerfile` を書き足します。
 
 ```Dockerfile:Dockerfile
 FROM ubuntu:20.04
@@ -92,18 +102,15 @@ FROM ubuntu:20.04
 RUN apt update
 RUN apt install -y vim
 
-COPY .bashrc /root/.bashrc
+COPY .vimrc /root/.vimrc
 ```
 
-Dockerfile の `COPY` は「ホストマシンのファイルをイメージにコピーする命令」です。
+`COPY` により「コンテナを起動するたびに `.vimrc` を作成する」という手間を解決できます。
 
-イメージに「あらかじめ `.bashrc` を含めておく」ことで、コンテナを起動するたびに `.bashrc` を作成する必要がなくなります。
+## CMD: デフォルト命令を指定する
+`CMD` はイメージのデフォルト命令を設定する命令です。
 
-## CMD: イメージのデフォルト命令を指定する
-コンテナで行いたいことが明確な場合や複雑な場合は `CMD` を使って解決します。
-
-`bash` の起動する汎用イメージではなく、特定のフォーマットで現在時刻を表示するイメージにしたいので、ためしにデフォルト命令を `date` に変更します。
-次の内容に `Dockerfile` を更新します。
+たとえば `bash` の起動する汎用イメージではなく、特定のフォーマットで現在時刻を表示するイメージにしたいので、次のように `Dockerfile` を書き足します。
 
 ```Dockerfile:Dockerfile
 FROM ubuntu:20.04
@@ -111,23 +118,22 @@ FROM ubuntu:20.04
 RUN apt update
 RUN apt install -y vim
 
-COPY .bashrc /root/.bashrc
+COPY .vimrc /root/.vimrc
 
 CMD date +"%Y/%m/%d %H:%M:%S ( UTC )"
 ```
 
-Dockerfile の `CMD` は「デフォルト命令を変更する命令」です。
-
-イメージに「デフォルト命令は `date`」と上書きしておくことで、`+"%Y/%m/%d %H:%M:%S ( UTC )"` という複雑な起動方法を覚える必要がなくなります。
+`CMD` により「`date +"%Y/%m/%d %H:%M:%S ( UTC )"` という複雑な起動方法を覚える」という手間を解決できます。
 
 ## 確認
-`Dockerfile` と `.bashrc` を作成しました。ホストマシンで確認すると次のようになっているはずです。
+`Dockerfile` と `.vimrc` を作成しました。
+ホストマシンで確認すると次のようになっているはずです。
 
 ```:Host Machine
 $ tree .
 
 .
-|-- .bashrc
+|-- .vimrc
 `-- Dockerfile
 ```
 
@@ -137,136 +143,91 @@ FROM ubuntu:20.04
 RUN apt update
 RUN apt install -y vim
 
-COPY .bashrc /root/.bashrc
+COPY .vimrc /root/.vimrc
 
 CMD date +"%Y/%m/%d %H:%M:%S ( UTC )"
 ```
 
-```bash:.bashrc
-export PS1='\w # '
+```txt:.vimrc ( Host Machine )
+set number
 ```
 
 # イメージをビルドする
-## ビルドと確認
-`Dockerfile` のあるディレクトリで `docker build` を行うことで、イメージが作成できます。
+`Dockerfile` ができたので、次はイメージの作成を行います。
 
 ```:新コマンド
 $ docker image build [option] <path>
 ```
 
-まずは最低限の指定でビルドしようと思うので、それぞれ次のように指定します。
-
-- `[otpion]` → `./Dockerfile` がある場合は省略可能
-- `<path>` → `COPY` に使う `.bashrc` がカレントディレクトリにあるので `.`
+引数        | 値                  | 理由                                    
+:--         | :--                 | :--                                     
+`[option]`  | `--tag` | 未指定だとできたイメージを指定する時に<br>ランダム文字列を使わなくてはならず使いづらいため
+`<path>`   | `.` | `COPY` に使う `.vimrc` がカレントディレクトリにあるため
 
 以上を踏まえ、次のコマンドでイメージをビルドします。
 
 ```:Host Machine
-$ docker image build .
+$ docker image build     \
+    --tag my-ubuntu:date \
+    .
 ```
 
 最後にこのような出力がされていれば成功です。
 
 ```:Host Machine
- => => writing image sha256:db18651e322c8c93ddbf2af1e4b23fb9ead26a411823792be33baca27730320a
+ => => writing image sha256:f099b72286fd6e3f80d099ea4301316eb6a8f0d8d3eda7cbaafc4a5b62452e0f
 ```
 
-イメージ一覧を確認すると、タグのない `db18651e322c` というイメージが作成されていることが確認できます。
+イメージ一覧を確認すると、`my-ubuntu:date` というイメージが作成できていることが確認できます。
 
 ```:Host Machine
 $ docker image ls
 
-REPOSITORY   TAG      IMAGE ID       CREATED         SIZE
-<none>       <none>   db18651e322c   minutes ago   160MB
-centos       latest   e6a0117ec169   4 months ago    272MB
-ubuntu       22.04    63a463683606   4 weeks ago     70.4MB
-ubuntu       21.10    2a5119fc922b   4 weeks ago     69.9MB
-ubuntu       20.04    9f4877540c73   4 weeks ago     65.6MB
-ubuntu       latest   9f4877540c73   4 weeks ago     65.6MB
+REPOSITORY   TAG      IMAGE ID       CREATED          SIZE
+my-ubuntu    date     f099b72286fd   51 seconds ago   160MB
+nginx        1.21     2e7e2ec411a6   3 weeks ago     134MB
+ubuntu       22.04    63a463683606   4 weeks ago    70.4MB
+ubuntu       21.10    2a5119fc922b   4 weeks ago    69.9MB
+ubuntu       20.04    9f4877540c73   4 weeks ago    65.6MB
+ubuntu       latest   9f4877540c73   4 weeks ago    65.6MB
 ```
 
-ビルドしたイメージ ( `db18651e322c` ) でコンテナを起動して、意図した通りのイメージになっているか確認します。
-
-まずはデフォルト命令を変更して日付を表示するコンテナにしたので、次の通り起動します。
-
-- `[otpion]` → 対話しないはずなのでなし
-- `<image>` → タグがないので `IMAGE ID` の `db18651e322c`
-- `[command]` → デフォルト命令を確認したいのでなし
+意図した通りのイメージになっているか確認します。
 
 ```:Host Machine
-$ docker container run db18651e322c
+$ docker container run \
+    --name my-ubuntu1  \
+    --rm               \
+    my-ubuntu:date
 
-2022/02/06 01:26:08 ( UTC )
+2022/02/20 08:12:16 ( UTC )
 ```
 
 `CMD` によるデフォルト命令の変更が意図通りであることを確認できます。
 
-次は `bash` を起動したいので、次の通り起動します。
-
-- `[otpion]` → `bash` を使うので `--interactive` と `--tty`
-- `<image>` → タグがないので `IMAGE ID` の `db18651e322c`
-- `[command]` → 起動したコンテナで `bash` を使いたいので `bash`
+次は `RUN` と `COPY` の結果を確認するために、メインコマンドを `vi` として起動してみます。
 
 ```:Host Machine
-$ docker container run --interactive --tty db18651e322c bash
-
-/ # which vi
-/usr/bin/vi
-
-/ # cd /etc
-
-/etc # cat lsb-release
-
-DISTRIB_ID=Ubuntu
-DISTRIB_RELEASE=20.04
-DISTRIB_CODENAME=focal
-DISTRIB_DESCRIPTION="Ubuntu 20.04.3 LTS"
+$ docker container run \
+    --interactive      \
+    --tty              \
+    --name my-ubuntu2  \
+    --rm               \
+    my-ubuntu:date     \
+    vi
 ```
 
-`RUN` による `vi` のインストール、`COPY` による `.bashrc` の反映、`FROM` によるベースイメージの指定のそれぞれが意図通りであることが確認できます。
+行番号の表示される `vi` が起動するはずです。
 
-## イメージにタグをつける
-毎回 `IMAGE ID` である `db18651e322c` で指定するのでは使いづらいので、ビルド結果に `-t` でタグをつけるようにします。
+# Dockerfile を複数扱うには
+イメージをビルドする時に `Dockerfile` のパスを指定していなかったことが気になった方がいるかもしれませんが、`docker image build` はデフォルトで `./Dockerfile` を使うようになっているので問題ありません。
 
-イメージの名前は `my-ubuntu:date` としたいので、それぞれ次のように指定します。
-
-- `[otpion]` → `-t` で `my-ubuntu:date` を指定
-- `<path>` → `COPY` に使う `.bashrc` がカレントディレクトリにあるので `.`
-
-以上を踏まえ、次のコマンドでイメージをビルドします。
-
-```:Host Machine
-$ docker image build -t my-ubuntu:date .
-```
-
-先ほど `<none>` `<none>` となっていた部分がそれぞれ `my-ubuntu` と `date` になりました。
-Dockerfile は変更していないのでビルド結果は同じため、`IMAGE ID` は `db18651e322c` 据え置きです。
-
-```:Host Machine
-$ docker image ls
-
-REPOSITORY    TAG       IMAGE ID        CREATED          SIZE
-my-ubuntu     date      db18651e322c    9 minutes ago    160MB
-ubuntu        22.04     63a463683606    3 hours ago      70.4MB
-ubuntu        21.10     2a5119fc922b    3 hours ago      69.9MB
-ubuntu        20.04     9f4877540c73    3 hours ago      65.6MB
-ubuntu        latest    9f4877540c73    3 hours ago      65.6MB
-```
-
-これで `my-ubuntu:date` で指定できるようになりました。
-
-```:Host Machine
-$ docker container run my-ubuntu:date
-2022/02/06 01:50:52 ( UTC )
-```
-
-## Dockerfile のディレクトリを分ける
-実際に Docker を使って開発をする場合は、Web サーバのコンテナや DB サーバのコンテナという風に複数のコンテナを活用することになります。
-それに伴って Dockerfile も複数になるため、一般には Dockerfile と `COPY` に使うファイルはディレクトリを分けて管理することになります。
+しかし実際に Docker を使って開発をする場合は、Web サーバのコンテナや DB サーバのコンテナなど複数のコンテナを活用することになります。
+それに伴って Dockerfile も複数になるため、一般には Dockerfile と `COPY` に使うためのファイルはコンテナごとに違うディレクトリで管理することが多いです。
 
 このページではこれ以上 Dockerfile を作りませんが、ディレクトリを分ける方法だけ確認しておきます。
 
-まずは次のように `docker/date/` ディレクトリを作成し、このページで作成した `Dockerfile` と `.bashrc` を移動します。
+まずは次のように `docker/date/` ディレクトリを作成し、このページで作成した `Dockerfile` と `.vimrc` を移動します。
 
 ```:Host Machine
 $ tree .
@@ -274,63 +235,67 @@ $ tree .
 .
 `-- docker
     `-- date
-        |-- .bashrc
+        |-- .vimrc
         `-- Dockerfile
 ```
 
-このディレクトリ構成でイメージをビルドする際に、`docker image build` を実行するディレクトリを変えない場合は `[option]` と `<path>` の指定を変える必要があります。
-
-- `[otpion]` → `-t` + `-f` で `docker/date/Dockerfile` を指定
-- `<path>` → `COPY` に使う `.bashrc` がある `docker/date` を指定
-
-以上を踏まえると、イメージをビルドするコマンドは次のようになります。
+このディレクトリ構成の場合は、`--file` オプションと `<path>` の変更が必要です。
 
 ```:Host Machine
-$ docker image build -t my-ubuntu:date -f docker/date/Dockerfile docker/date
+$ docker image build              \
+    --tag my-ubuntu:date          \
+    --file docker/date/Dockerfile \
+    docker/date
 ```
 
-`<path>` は `COPY` の相対パスをどこから辿るかに影響します。
+`--file` は `./Dockerfile` 以外の Dockerfile を指定する時に必要です。
 
-今のようなディレクトリ構成の場合に `COPY .bashrc /root/.bashrc` と書いたなら、`docker image build` では `docker/date` を指定しなければビルドが失敗します。
+次に `<path>` ですが、これは `COPY` で使うファイルを指定する時の相対パスになります。
+`実行ディレクトリ/<path>/.vimrc` を `/root/.vimrc` に追加すると置き換えられます。
 
 ```:Host Machine
 $ tree .                docker image build [option] docker/date
-
+                                                    ^^^^^^^^^^^
 .
 `-- docker
     `-- date
-        |-- .bashrc
-        `-- Dockerfile  COPY (docker/date/).bashrc /root/.bashrc
+        |-- .vimrc
+        `-- Dockerfile  COPY (docker/date/).vimrc /root/.vimrc
+                              ^^^^^^^^^^^
 ```
 
-`docker image build` で `.` を指定したいなら、`COPY docker/date/.bashrc /root/.bashrc` と記述することになります。
+`docker image build` で `.` を指定したいなら、`COPY` の方を調整します。
 
 ```:Host Machine
 $ tree .                docker image build [option] .
+                                                    ^
 
 .
 `-- docker
     `-- date
-        |-- .bashrc
-        `-- Dockerfile  COPY (./)docker/date/.bashrc /root/.bashrc
+        |-- .vimrc
+        `-- Dockerfile  COPY (./)docker/date/.vimrc /root/.vimrc
+                              ^
 ```
 
-`docker image build` を実行するディレクトリを Dockerfile のある場所と同じにするなら両方を `.` にできますが、いちいちディレクトリを変えるのは面倒でしょう。
+`COPY` も `<path>` も `.` にしたいなら実行するディレクトリを変えれば良いですが、これはおすすめしません。
 
 ```:Host Machine
 $ tree .
 
 .
 `-- docker
-    `-- date
-        |-- .bashrc     docker image build [option] .
-        `-- Dockerfile  COPY (./).bashrc /root/.bashrc
+    `-- date            docker image build [option] .
+        |                                           ^
+        |-- .vimrc     
+        `-- Dockerfile  COPY (./).vimrc /root/.vimrc
+                              ^
 ```
 
-どの方法を用いても良いですが、僕は `docker image build` が一番楽な `COPY docker/date/.bashrc /root/.bashrc` の方法をよく使います。
+どの方法を用いても良いですが、僕は `docker image build` が一番楽な `COPY docker/date/.vimrc /root/.vimrc` の方法をよく使います。
 ディレクトリ名 ( `docker/date` ) を変更すると Dockerfile が壊れますが、そうそうあることではないので許容しています。
 
-# レイヤー確認
+# レイヤーを確認する
 イメージのレイヤー情報を `docker image history` で確認することができます。
 
 ```:新コマンド
@@ -352,30 +317,120 @@ $ docker image history my-ubuntu:date
 
 IMAGE          CREATED          CREATED BY                                      SIZE      COMMENT
 db18651e322c   33 minutes ago   CMD ["/bin/sh" "-c" "date +\"%Y/%m/%d %H:%M:…   0B        buildkit.dockerfile.v0
-<missing>      33 minutes ago   COPY .bashrc /root/.bashrc # buildkit           20B       buildkit.dockerfile.v0
+<missing>      33 minutes ago   COPY .vimrc /root/.vimrc # buildkit             20B       buildkit.dockerfile.v0
 <missing>      49 minutes ago   RUN /bin/sh -c apt install -y vim # buildkit    67.3MB    buildkit.dockerfile.v0
 <missing>      50 minutes ago   RUN /bin/sh -c apt update # buildkit            27.6MB    buildkit.dockerfile.v0
 <missing>      3 days ago       /bin/sh -c #(nop)  CMD ["bash"]                 0B
 <missing>      3 days ago       /bin/sh -c #(nop) ADD file:3acc741be29b0b58e…   65.6MB
 ```
 
-`my-ubuntu:date` は `ubuntu:20.04` を `FROM` でベースイメージに指定したので、`my-ubuntu:date` の下 2 層は `ubuntu:20.04` を同じになっています。
+`my-ubuntu:date` は `ubuntu:20.04` を `FROM` でベースイメージに指定したので、**`my-ubuntu:date` の下 2 層は `ubuntu:20.04` を同じ** になっています。
 
 その上に Dockerfile に書いた `RUN` `RUN` `COPY` `CMD` が積み重なっていることが確認できます。
-一番上まで積み重ねて Dockerfile によるビルドが完了したレイヤーに `IMAGE ID` ( `db18651e322c` ) が振られています。
+一番上まで積み重ねて `docker image build` によるビルドが完了したレイヤーに `IMAGE ID` ( `db18651e322c` ) が振られています。
 
-# todo の高速化
+## RUN をいくつのレイヤーにするか
+若干細かい話になるので理解を後回しにしても構いません。
+
+普段目にする Dockerfile は `RUN apt update && apt install -y vim` のように **１つの `RUN` で複数の Linux コマンドを連続して実行** しているものが大半だと思います。
+
+これは **`RUN` がコマンドの結果をレイヤーとして確定する** という点に注目すれば読み取りやすいです。
+
+たとえば次のような「`.java` を持ってきてコンパイルして `.jar` を使いたい、`.java` 自体はいらない」という仮想の Dockerfile があった場合を考えます。
+
+```Dockerfile:Dockerfile
+RUN git clone https://github.com/foo/bar-tool
+RUN cd bar-tool
+RUN コンパイル
+RUN cp bar-tool.jar /tool
+RUN rm -rf bar-tool
+```
+
+`RUN` は結果をレイヤーとして確定してしまうので、`git clone` が成功した時点のレイヤーをイメージに含んでしまい、イメージのサイズは小さくなりません。
+
+対して、次の Dockerfile は５つのコマンド全てが終わってから１つのレイヤーを確定するので、イメージのサイズが小さくなります。
+
+```Dockerfile:Dockerfile
+RUN git clone https://github.com/foo/bar-tool \
+ && cd bar-tool                               \
+ && mvn install                               \
+ && cp bar-tool.jar /tool                     \
+ && rm -rf bar-tool
+```
+
+イメージのサイズを気にする場合は、このような点に気を付けたりマルチステージビルド ( この本では解説しません ) を活用すると良いでしょう。
+
+Linux コマンドを繋げるもう１つの理由は、**レイヤーがキャッシュされる** という点です。
+
+次のような Dockerfile をビルドしたあとに、
+
+```Dockerfile:Dockerfile
+RUN apt update
+RUN apt install -y vim
+```
+
+次のような Dockerfile に変更してビルドをすると問題が発生するかもしれません。
+
+```Dockerfile:Dockerfile
+RUN apt update
+RUN apt install -y vim curl
+```
+
+変更のあったレイヤーは２つめの `apt install` の方だけなので、１つめのレイヤーとして確定している `apt update` は再実行されません。
+
+次のように書いておけば **１つめのレイヤーに変更があった** と判断され `apt update` から再実行されます。
+
+```Dockerfile:Dockerfile
+RUN apt update && apt install -y vim curl
+```
+
+反対に、`RUN` を繋げすぎると Dockerfile の構築中などに次のようなデメリットも発生します。
+
+- Linux コマンドに不備があり `RUN` が失敗した場合、繋げすぎたコマンドはどこで失敗したか極めてわかりづらい
+- 繋げすぎたコマンドの後半で失敗しても、確定したレイヤーがないので初めから全部再実行になる
+
+構築時はバラして完成したら繋げる、のように状況に応じて `RUN` を構築できるとよりよいでしょう。
+
+## Docker Hub のレイヤー情報を読み解く
+[２部: ](2-7-image) で 22 もレイヤーがある `rails:5.0.1` の話をしました。
+
+> [`Rails の Tags` ページ](https://hub.docker.com/_/rails?tab=tags) から `5.0.1` を選んでレイヤーを確認してみると、実に 22 ものレイヤーがあることが確認できます。
+
+![image](/images/rails-layers-1.png)
+
+しかし [公開されている Dockerfile](https://github.com/docker-library/rails/blob/e16e955a67f48c1e8dc0af87ba6c0b7f8302bad2/Dockerfile) は 22 行もありません。
+
+```Dockerfile:Dockerfile
+FROM ruby:2.3
+
+# see update.sh for why all "apt-get install"s have to stay as one long line
+RUN apt-get update && apt-get install -y nodejs --no-install-recommends && rm -rf /var/lib/apt/lists/*
+
+# see http://guides.rubyonrails.org/command_line.html#rails-dbconsole
+RUN apt-get update && apt-get install -y mysql-client postgresql-client sqlite3 --no-install-recommends && rm -rf /var/lib/apt/lists/*
+
+ENV RAILS_VERSION 5.0.1
+
+RUN gem install rails --version "$RAILS_VERSION"
+```
+
+**Docker Hub のレイヤーページで確認できるのはレイヤー** ということと **Dockerfile は FROM で指定したイメージにレイヤーを重ねられる** ということが理解できると、どうしてレイヤーの数と Dockerfile の行数が一致しないかがわかります。
+
+![image](/images/rails-layers-2.png)
+
+頭の片隅にでも入れておくと、役に立つ時が来るでしょう。
 
 # まとめ
-- `docker build` は Dockerfile からイメージを作るコマンド
-- `-f` により Dockerfile を明示できる
-- `-t` によりビルド結果にタグをつけられる
-- Dockerfile に書いた命令でレイヤーが積み重なりイメージになる
-- イメージがレイヤーの積み重ねであることを理解しておくと、Dockerfile の理解が深まる
-- Dockerfile は Git 管理下に入れ共有する
+簡潔にまとめます。
 
-
-
-
-
-その証拠に、`rails:5.0.1` の [Dockerfile](https://github.com/docker-library/rails/blob/e16e955a67f48c1e8dc0af87ba6c0b7f8302bad2/Dockerfile) は `FROM` を除き 4 行ですが、画面で確認できるレイヤーは 22 あります。
+- `FROM` はベースイメージを指定する
+- `RUN` は Linux コマンドを実行してレイヤーを確定する
+- `COPY` はホストマシンのファイルをイメージに追加する
+- `CMD` はデフォルト命令を指定する
+- イメージをビルドする時は `<path>` と `COPY` を調整する
+- 次のようなことを考慮して `RUN` で確定するレイヤーの単位を決める  
+  - イメージサイズやキャッシュなどの利点
+  - トラブルシュートのしやすさなどの難点
+- `FROM` で指定したイメージのレイヤーに Dockerfile で指定したレイヤーが乗る
+  
+混乱してしまった時は立ち返ってみてください。
