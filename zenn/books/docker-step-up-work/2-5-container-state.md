@@ -2,20 +2,82 @@
 title: "２部: コンテナの状態保持"
 ---
 
-コンテナを終了するとコンテナで行った操作がどうなるか理解します。
+コンテナを削除するとコンテナで行った操作がどうなるか学び、Dockerfile やボリュームなどが必要になる理由を理解します。
 
 # コンテナの状態について
-todo 
+[２部: ](2-1-points) の コンテナとは の中に、次のような特徴がありました。
 
-このページでは次の２つのポイントを確認します。
+> 3. 複数のコンテナは互いに独立していて影響できず、独自に動作する
 
-1. 同じイメージから起動したコンテナでも、コンテナ同士は隔離されていてお互いに影響されない
-2. コンテナは起動するたびに新しいものが作成される
+このページではこの特徴を２つの観点から確認します。
 
-# コンテナの構成変更は破棄される
-確認してみます。
+1. 同じイメージから起動しても違うコンテナである
+1. コンテナでの操作はほかのコンテナに影響しない
 
-まずは `ubuntu:20.04` イメージからコンテナを起動します。
+確認してみましょう。
+
+# 同じイメージから起動しても違うコンテナである
+これは `CONTAINER ID` を確認すれば明らかです。
+
+１つめの Nginx コンテナを起動します。
+
+```:Host Machine
+$ docker container run \
+    --detach           \
+    --rm               \
+    --name nginx1      \
+    nginx
+```
+
+２つめの Nginx コンテナを起動します。
+
+```:Host Machine
+$ docker container run \
+    --detach           \
+    --rm               \
+    --name nginx2      \
+    nginx
+```
+
+コンテナ一覧を確認すると、`CONTAINER ID` の異なる２つのコンテナが起動していることが確認できます。
+
+```:Host Machine
+$ docker container ls
+
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
+770f08892af6   nginx     "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   80/tcp    nginx2
+abff10020aa4   nginx     "/docker-entrypoint.…"   7 seconds ago   Up 6 seconds   80/tcp    nginx1
+```
+
+`nginx1` コンテナを削除して再度 `nginx1` という名前でコンテナを起動します。
+
+```:Host Machine
+$ docker stop \
+    nginx1
+    
+$ docker container run \
+    --detach           \
+    --rm               \
+    --name nginx1      \
+    nginx
+```
+
+名前は同じですが、先ほどとは `CONTAINER ID` が違うので別のコンテナです。
+
+```:Host Machine
+$ docker container ls
+
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
+4f37cff849da   nginx     "/docker-entrypoint.…"   5 seconds ago   Up 5 seconds   80/tcp    nginx1
+770f08892af6   nginx     "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   80/tcp    nginx2
+```
+
+同じイメージから起動しても、同じ名前で起動しても、**コンテナは起動するたびに新しい別物** だということが確認できました。
+
+![image](/images/structure/structure.038.jpeg)
+
+# コンテナでの操作はほかのコンテナに影響しない
+Ubuntu イメージからメインプロセスが `bash` のコンテナを２つ起動します。
 
 ```:Host Machine
 $ docker container run \
@@ -23,33 +85,11 @@ $ docker container run \
     --tty                \
     --rm                 \
     --name ubuntu1       \
-    ubuntu:20.04         \
+    ubuntu               \
     bash
 
 #
 ```
-
-特に深い理由はありませんが、ここでは `figlet` というアスキーアートを作るコマンドをインストールすることにします。
-
-```:Container
-# apt update
-# apt install -y figlet
-
-# figlet 'D o c k e r'
- ____                   _
-|  _ \    ___     ___  | | __   ___   _ __
-| | | |  / _ \   / __| | |/ /  / _ \ | '__|
-| |_| | | (_) | | (__  |   <  |  __/ | |
-|____/   \___/   \___| |_|\_\  \___| |_|
-
-#
-```
-
-これで `ubuntu:20.04` イメージとは構成の違うコンテナになりました。
-
-e
-
-次に同じイメージから名前以外は全く同じオプションを指定して `ubuntu2` を起動して確認します。
 
 ```:Host Machine
 $ docker container run \
@@ -57,132 +97,84 @@ $ docker container run \
     --tty                \
     --rm                 \
     --name ubuntu2       \
-    ubuntu:20.04         \
+    ubuntu               \
     bash
 
-# figlet
-
-bash: figlet: command not found
+#
 ```
 
-`ubuntu1` と `ubuntu2` という名前を付けているのでわかりやすいですが、これらは **違うコンテナ** なので状態は共有していません。
+`ubuntu1` コンテナの方で `vim` をインストールして、`~/hello.txt` を作成します。
 
-e
+```:Container ( ubuntu1 )
+# apt update
+# apt install -y vim
 
-ポイントの１について確認できました。
-
-> 1. 同じイメージから起動したコンテナでも、コンテナ同士は隔離されていてお互いに影響されない
-
-これから `ubuntu1` コンテナと `ubuntu2` コンテナを削除しますが、その前に `CONTAINER ID` を控えておきます。
-
-```:Host Machine
-$ docker container ls
-
-CONTAINER ID   IMAGE          COMMAND   CREATED          STATUS          PORTS     NAMES
-4673ce7219e5   ubuntu:20.04   "bash"    29 seconds ago   Up 28 seconds             ubuntu1
-aa751e341705   ubuntu:20.04   "bash"    3 minutes ago    Up 3 minutes              ubuntu2
+# vi ~/hello.txt
+( hello world と入力して :wq で保存して終了する )
 ```
 
-控えたら削除します。削除は複数まとめて行うことが可能です。
+`ubuntu1` コンテナで `vi` コマンドが実行できることを確認したら、次は `ubuntu2` コンテナで `vi` コマンドを実行します。
 
-```:Host Machine
-$ docker container rm \
-    --force           \
-    ubuntu1 ubuntu2
+```:Container ( ubuntu2 )
+# vi
+
+bash: vi: command not found
 ```
 
-そしてまた全く同じコマンドで `ubuntu1` を起動しますが、`ubuntu1` コンテナには `figlet` がないことを確認します。
+`ubuntu2` コンテナにはそもそも `vi` が存在しないことが確認できます。
 
-```:Host Machine
-$ docker container run   \
-    --interactive        \
-    --tty                \
-    --rm                 \
-    --name ubuntu1       \
-    ubuntu:20.04         \
-    bash
-    
-# figlet
+`~/hello.txt` も存在しません。
 
-bash: figlet: command not found
+```:Container ( ubuntu2 )
+# cat ~/hello.txt
+
+cat: /root/hello.txt: No such file or directory
 ```
 
-最後に `CONTAINER ID` を確認すると、名前は最初と同じ `ubuntu1` ですが `CONTAINER ID` は変わっていることが確認できます。
+**コンテナで行った作業や作成したファイルは他のコンテナには一切影響しない** ことが確認できました。
 
-```:Host Machine
-$ docker container ls
+![image](/images/structure/structure.039.jpeg)
 
-CONTAINER ID   IMAGE          COMMAND   CREATED          STATUS          PORTS     NAMES
-33f1f768bc96   ubuntu:20.04   "bash"    7 minutes ago    Up 7 minutes              ubuntu1
-```
-
-e
-
-ポイントの２について確認できました。
-
-> 2. コンテナは起動するたびに新しいものが作成される
-
-# コンテナでファイルを作成する
-`figlet` をインストールするという構成変更を行い、コンテナの構成変更は他のコンテナに影響しないということを確認しました。
-
-次はコンテナ内で作成したファイルは他のコンテナからアクセスできないということを確認します。
-構成変更について確認した手順とほとんど同じになりますので、手短に対話を用いず進めます。
-
-まずは `ubuntu3` コンテナに `hello.txt` を作成します。
-
-```:Host Machine
-$ docker container run             \
-    --rm                           \
-    --name ubuntu3                 \
-    ubuntu:20.04                   \
-    echo 'hello world' > hello.txt
-```
-
-デフォルト命令を `echo` に上書きしているため、コンテナは即時停止します。
-
-e
-
-`ubuntu4` コンテナには当然 `hello.txt` はなく、
-
-```:Host Machine
-$ docker container run \
-    --rm               \
-    --name ubuntu4     \
-    ubuntu:20.04       \
-    cat hello.txt
-                
-cat: hello.txt: No such file or directory
-```             
-
-新たに起動した `ubuntu3` コンテナにも、`hello.txt` はありません。
-
-```:Host Machine
-$ docker container run \
-    --rm               \
-    --name ubuntu3     \
-    ubuntu:20.04       \
-    cat hello.txt
-                
-cat: hello.txt: No such file or directory
-```             
-
-e
-
-ファイル作成も構成変更と同じように他のコンテナには影響しないことが確認できました。
-
-# コンテナの操作を別のコンテナに引き継ぐにはどうするか
+# コンテナの状態を別のコンテナに引き継ぐには
 大別して 2 つ方法があります。
 
-## 構成変更を永続化したいならイメージを作る
-`figlet` などのコンテナで必要になるコマンドは、Dockerfile を用いてイメージの方に入れておくことで解決ができます。
+- 構成変更を引き継ぎたいならイメージを作る
+- ファイルを残したいならホストマシンと共有する
 
-todo e
+どちらもページを設け細かく説明するので、ここでは紹介だけします。
 
-詳しくは todo で説明します。
+## 構成変更を引き継ぎたいならイメージを作る
+`vi` などのコンテナで必要になるコマンドは、Dockerfile を用いてイメージの方に含めておくことで解決ができます。
+
+![image](/images/structure/structure.040.jpeg)
+
+そうすれば「コンテナを起動するたびに `vi` を入れる」のではなく「`vi` が入ったコンテナを起動する」ことで解決できます。
+
+詳しくは [２部: ](2-8-dockerfile) で説明します。
 
 ## ファイルを残したいならホストマシンと共有する
 `hello.txt` のファイルが消えてほしくない場合は、ボリュームかバインドマウントを用いてホストマシンにファイルを共有することで解決できます。
 
-todo e
+![image](/images/structure/structure.041.jpeg)
 
-詳しくは todo で説明します。
+そうすれば「コンテナを起動するたびに `~/hello.txt` を作る」のではなく「コンテナ起動したらホストマシンの `~/hello.txt` をマウントする」ことで解決できます。
+
+詳しくは [３部: ]() で説明します。
+
+# まとめ
+簡潔にまとめます。
+
+- コンテナは起動するたびに違うコンテナである
+- コンテナの操作は他のコンテナに影響しない  
+- 状態を引き継ぎたいならなんらかの対処が必要
+  - Dockerfile
+  - ボリュームやバインドマウント
+
+混乱してしまった時は立ち返ってみてください。
+
+:::details このページで作成したものの掃除
+```:Host Machine
+$ docker container rm --force \
+    nginx1 nginx2 ubuntu1 ubuntu2
+```
+:::
