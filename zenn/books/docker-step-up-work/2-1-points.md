@@ -8,7 +8,7 @@ Docker の細かい話に入る前に、Docker を正しく、そして結果的
 1. 基本の要素は３つ
 2. 基本のコマンドも３つ
 3. コマンドの形を意識する
-4. Docker を礎にするものを分ける
+4. Docker と周辺ツールを分ける
 
 Docker をコマンド一覧やオプション一覧から理解しようとすると、ちゃんと基本を身につけるのが極めて難しいと思います。
 それは「起動するならこう」「こういうときはこう」「このエラーが出たらこう」のようにやみくもに集めた知識は、正しく自分の状況に当てはめることができないからです。
@@ -175,7 +175,7 @@ Dockerfile は既存のイメージにレイヤーをさらに積み上げるた
 実は Docker のコマンドは 2017 年 1 月にリリースされた v1.13 で大幅な変更が行われており、`docker run` が旧コマンド、`docker container run` が新コマンドとなっています。
 これは `docker run` や `docker build` のような `docker` 直下のコマンドが増えすぎて **なに** がわかりづらくなってしまったためで、v1.13 からはそれぞれ対象を明示できるサブコマンド形式の方を使うことが推奨されています。
 
-![image](/images/picture/picture.006.jpeg)
+![image](/images/picture/picture.026.jpeg)
 
 普段目にするコマンドはおそらく `docker run` や `docker build` などの旧コマンドが多いのではないかと思います。
 僕自身も短くて楽なので普段は旧コマンドを使っていますが、この本では **なに** が明瞭な新コマンドを使って説明を行います。
@@ -202,7 +202,7 @@ Dockerfile は既存のイメージにレイヤーをさらに積み上げるた
 - `docker image ls`
 - `docker container ls`
 
-# 4. Docker を礎にするものを分ける
+# 4. Docker と周辺ツールを分ける
 Docker を前提としたものがいくつかあるので、初学者のうちはそれを Docker そのものの基礎と混同しないように気を付けると良いでしょう。
 
 1. Docker Compose
@@ -211,28 +211,29 @@ Docker を前提としたものがいくつかあるので、初学者のうち�
 ここでは２つだけ、軽く紹介します。
 
 ## Docker Compose
-Docker Compose は `docker-compose.yml` という Yaml ファイルを書くことにより、目的の違う複数のコンテナをまとめて起動したり、複数の `docker xxx create` などを気を利かせてやってくれるツールです。
+Docker Compose は `docker-compose.yml` という Yaml ファイルを書くことにより、目的の違う複数のコンテナをまとめて起動したり、複数の `docker xxx create` などを実行してくれるツールです。
 
-![image](/images/structure/structure.013.jpeg)
+![image](/images/picture/picture.017.jpeg)
 
 Docker Compose は Docker Desktop に含まれており、`docker compose xxx` のようなコマンド体系になっています。
 
-開発環境を構築する場合、大抵は Docker のみだとコマンドが複雑になるので、手順を共有できる Docker Compose を使うことになります。
+Docker CLI のみで環境を構築しようとすると、多量の複雑なコマンドを誰でも何度でも同じく実行できるためには **Docker コマンドの手順書が必要** になります。
+この問題を、Docker Compose を使い詳細な命令は **全部 Yaml に書いて GitHub で共有** するという方法で解決することができるようになります。
 
-![image](/images/structure/structure.014.jpeg)
+![image](/images/picture/picture.018.jpeg)
 
 Docker を使って開発環境を構築する todo エンジニアにとって、Docker Compose は必須のスキルと言えるでしょう。
 
 この本では「Docker を正しく理解する」→「Docker Compose に置き換えて楽をする」という流れで導入し、最終的にはとても複雑な構成を `docker compose up` のみで即時起動できる状態を目指します。
 
 ## Kubernetes
-Kubernetes ( 略して k8s とも ) は `todo` を書くことにより、同じコンテナを複数台起動してクラスタを構築したり、コンテナが意図せず停止してしまった時に自動で再起動をしたりするために導入するツール?です。
+Kubernetes は `todo` を書くことにより、同じコンテナを複数台起動してクラスタを構築したり、コンテナが意図せず停止してしまった時に自動で再起動をしたりするために導入するオーケストレーションソフトウェアです。
 
-![image](/images/structure/structure.015.jpeg)
+![image](/images/picture/picture.022.jpeg)
 
 Kubernetes も Docker Desktop に含まれており、`todo` のようなコマンド体系になっています。
 
-開発環境を構築する場合、大抵は DB サーバを冗長構成にしたり Web サーバの監視?を行ったりはしないので、Kubernetes は使いません。
+開発環境を構築する場合、大抵は DB サーバを冗長構成にしたり Web サーバの監視を行ったりはしないので、Kubernetes は使いません。
 
 Docker 利用の主目的を開発環境の構築とするならば、Kubernetes はまだ学ばないと割り切ってしまってもよいでしょう。
 

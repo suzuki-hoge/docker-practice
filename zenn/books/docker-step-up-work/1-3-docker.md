@@ -1,31 +1,66 @@
 ---
-title: "1-2: サーバ仮想化とは？"
+title: "１部: Docker とは？"
 ---
 
-簡単に仮想化技術につ
+簡単に仮想化技術について学んだので、このページではその中の１つである Docker について学びます。
+
 # Docker とは
-Docker は Docker 社の開発しているプラットフォームです。
+Docker はコンテナ型仮想化を用いてアプリケーションの開発や配置を行うための、Docker 社の開発しているプラットフォームです。
 
-コンテナや Dockerfile については後のページで細かく説明するとして、ここではいくつかの要素の要点だけ簡単に整理します。
+2013 年のリリース当初は 「Docker」は単一のアプリケーションを指す言葉だったようですが、標準化と発展に伴いさまざまなコンポーネントを含むようになり、今は「Docker」はプラットフォームであるとされているようです。
+Docker という単語がなにを指しているかは結構曖昧ですが、この本ではプラットフォームのこととして使います。
 
-- Docker Desktop
+このページではそのプラットフォームに含む Docker Xxx という名前の要素について、要点だけ簡単に整理します。
+
 - Docker Engine
 - Docker CLI
+- Docker Desktop
 - Docker Compose
 - Docker Hub
 
-また、次の要素はこの本では扱わないため、ここで簡単に触れて「今は学ばない範囲」とマークしておきます。
+Docker について調べるとよく耳にする「コンテナ」と「イメージ」と「Dockerfile」については、２部全体を使い説明します。
 
-- Amazon ECR / Google Container Registry
+また、次の要素はこの本では扱わないため、ここで簡単に触れて **今は学ばない範囲とマーク** しておきます。
+
+- ECS / GKE  
+- ECR / GCR
 - Kubernetes
 
-## Docker Desktop
-Docker Desktop は Windows や Mac で動くアプリケーションで、Docker Engine や Docker CLI や Docker Compose を含んでいます。
-また、Linux のカーネルも含んでいます。
+# Docker Engine とは
+Docker Engine が [１部: ]() で紹介したコンテナ型仮想化ソフトウェアの部分です。
+これによりアプリケーションをコンテナとして扱うことができるようになります。
 
-Docker に関するもの一式が得られるため、Docker を使う場合はこれをインストールすると良いでしょう。
-( Windows で Hyper-V が利用できない場合に VirtualBox を使い Docker を動かす Docker Toolbox というものもありますが、ここでは扱いません )
+Docker のコンテナは Linux のカーネルと機能を使って動いているため、Docker Engine は Linux でしか動きません。
 
+要約すると **コンテナを乗せる部分** で、**Linux で動く** ソフトウェアです。
+
+![image](/images/picture/picture.014.jpeg)
+
+また、Command Line Interface ( CLI ) も Docker Engine に提供されます。
+
+# Docker CLI とは
+Docker Engine に提供され、`docker run` や `docker build` のような `docker` ではじまるコマンドで Docker に命令をすることができます。
+
+要約すると **コマンドのこと** で、普段もっとも目にする想像しやすい部分でしょう。
+
+![image](/images/picture/picture.015.jpeg)
+
+ちなみに `docker` コマンドは `dockerd` というデーモンに命令を伝え `containerd` というランタイムを操作しますが、一般に `dockerd` や `containerd` は隠蔽されており意識することはありません。
+
+# Docker Desktop とは
+Docker Desktop は Windows や Mac で Docker Engine を動かすためのアプリケーションです。
+
+**Docker Desktop に Linux のカーネルが含まれている** ため、Linux 以外の OS でも Docker Engine を動かすことができるようになります。
+
+一般に「ホストマシンに Docker をインストールする」とは「Docker Desktop アプリケーションをインストールする」ということになるでしょう。^[Windows で Hyper-V が利用できない場合に VirtualBox を使い Docker を動かす Docker Toolbox というものもありますが、ここでは取り扱いません。]
+
+要約すると **Windows か Mac で Docker を使おうと思ったときに Docker 一式をインストールできるもの** です。
+
+![image](/images/picture/picture.016.jpeg)
+
+Docker Desktop には Docker Compose や Kubernetes なども含まれています。
+
+## インストールとアカウントについて
 Docker Desktop は [ドキュメントサイト](https://docs.docker.jp/desktop/index.html#desktop-download-and-install) を読み進めると Docker Hub からダウンロードできます。
 ドキュメントには Docker for Windows や Docker for Mac と書いてありますが、それぞれ Docker Desktop のことなので安心してください。
 
@@ -34,85 +69,70 @@ Docker Desktop は [ドキュメントサイト](https://docs.docker.jp/desktop/
 Docker Desktop には Docker ID を使って Sign in することができますが、アカウントを作らなくても十分活用できます。
 Sign in するメリットについては [ダウンロード率制限](https://matsuand.github.io/docs.docker.jp.onthefly/docker-hub/download-rate-limit/) などを見てみてください。
 
-## Docker Engine
-Docker のコンテナは、Linux の Namespace という技術で成り立っています。( コンテナについては [２部: ](2-1-points) で改めて説明します )
+# Docker Compose とは
+Docker Compose は Docker CLI をまとめて実行してくれる便利なツールで、`docker compose up` のような `docker compose` ではじまるコマンドを提供してくれます。
 
-その Namespace を管理・操作してコンテナとしてアプリケーションを構築するために必要なのが Docker Engine です。
+「２つのコンテナを起動し」「それぞれのネットワークを構築し」「コンテナのデータをホストマシンに出力させる」という複雑なコマンドを、Yaml ファイルを書くことで実現することができるツールです。
 
-コンテナを動作させるためには Linux のカーネルが必要になるので、Docker Engine は Docker Desktop に含まれる Linux カーネルの上で動作します。
+要約すると **`docker` コマンドをまとめて実行してくれるようなもの** です。
 
-e?
+![image](/images/picture/picture.017.jpeg)
 
-## Docker CLI
-Docker CLI はその名の通り Docker のコマンドラインインターフェースです。
-Docker Desktop により、`docker run` や `docker build` など、Docker に関する様々なことを行うコマンドがホストマシンにインストールされます。
+Docker Compose を導入すれば **極めて簡単** に **同じ構成を再現** できるようになります。
 
-## Docker Compose
-Docker Compose は Docker CLI をまとめて実行してくれる便利なラッパーのようなものです。
+この本の３部では Docker CLI だけで構築した環境を Docker Compose に置き換えるところまで経験できますが、あまりの手軽さに驚くことでしょう。
 
-「３つのコンテナを起動し」「それぞれのネットワークを接続し」「コンテナのログをホストマシンに出力させる」という操作を、Yaml ファイルを書くことで実現することができるツールです。
+# Docker Hub とは
+[Docker Hub](https://hub.docker.com/) は Docker のイメージレジストリである Saas サービスです。
 
-構築が終わり配布された Docker 環境は Docker Compose を使う形になっていることが多いので、`docker compose up` のようなコマンドを目にしたことがある方も多いと思います。
+公開されているイメージを `git pull` したり、構築したイメージを `git push` する先のように理解すれば、まずは大丈夫です。
 
-Docker Compose で行っていることは全て Docker の基本操作なので、Docker の基礎を身につけることで自然と Docker Compose も理解できるようになります。
+要約すると **イメージの GitHub のようなもの** です。
 
-## Docker Hub
-[Docker Hub](https://hub.docker.com/) は Docker のイメージを共有する Saas サービスです。
+![image](/images/picture/picture.019.jpeg)
 
-公開されている Docker イメージを `git pull` したり、構築した Docker 環境を `git push` する先のように理解すれば、まずは大丈夫です。
+Docker Hub からのイメージの取得には、アカウントやログインは必要ありません。
 
-Docker Desktop のインストールやイメージの取得には、Docker Hub のアカウントやログインは必要になりません。
+# ECS / GKE とは
+[Amazon Elastic Container Service ( ECS )](https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/Welcome.html) と [Google Kubernetes Engine ( GKE )](https://cloud.google.com/kubernetes-engine) は、コンテナ管理サービスです。
 
-## Amazon ECR / Google Container Registry
-[Amazon Elastic Container Registry](https://docs.aws.amazon.com/ja_jp/AmazonECR/latest/userguide/what-is-ecr.html) や [Google Container Registry](https://cloud.google.com/container-registry) は、非公開のイメージのレジストリです。
+要約すると **Docker Engine の入った Linux のこと** で、**ローカル開発に使ったコンテナをそのままリリースできる場所** のことです。
 
-要するにプライベートな Docker Hub のことで、「公開や配布はしたくないけどレジストリに登録しないとデプロイできない」というときに使うことになります。
+![image](/images/picture/picture.020.jpeg)
 
-開発環境の構築および共有に限定すれば GitHub などで Dockerfile を共有すれば十分なので、この本ではこれらの非公開レジストリは使用しません。
+ローカル開発環境の構築に限定すれば必要ないため、この本ではこれらのコンテナ管理サービスは使用しません。
 
-## Kubernetes
-Kubernetes は多数のコンテナを自動的に管理するオーケストレーションソフトウェアです。
+# ECR / GCR とは
+[Amazon Elastic Container Registry ( ECR )](https://docs.aws.amazon.com/ja_jp/AmazonECR/latest/userguide/what-is-ecr.html) と [Google Container Registry ( GCR )](https://cloud.google.com/container-registry) は、非公開のイメージのレジストリです。
+
+要約すると **プライベートな Docker Hub のこと** で、「商用サービスのイメージを Docker Hub に晒したくないけど、レジストリに登録しないとデプロイできない」というときなどに使うことになります。
+
+![image](/images/picture/picture.021.jpeg)
+
+ローカル開発環境の構築に限定すれば GitHub と Dockerfile で十分なので、この本ではこれらの非公開レジストリは使用しません。
+
+# Kubernetes とは
+Kubernetes ( 略して k8s とも ) は多数のコンテナを自動的に管理するオーケストレーションソフトウェアです。
 オーケストレーションにより、コンテナの監視やコンテナ停止時の自動起動やスケーリングなどが実現できるようになります。
+
+要約すると **起動中のコンテナの面倒を見てくれる** ものです。
+
+![image](/images/picture/picture.022.jpeg)
 
 Kubernetes も Docker Desktop に含まれていますが、開発環境の構築にここまで必要になることはまずないので、この本では Kubernetes は使用しません。
 
-# コンテナの特徴
-## 利点
-### 起動が早い
-OS の起動を行わないため、仮想サーバに比べて Docker コンテナの方が起動が速いです。
+ちなみにオーケストレーションツールは `docker` コマンドではなく `dockerd` や `containerd` を直接使っています。
 
-![image](/images/picture/picture.002.jpeg)
+# まとめ
+長くなってしまったので、簡潔にまとめます。
 
-そのためコンテナ構築のトライ & エラーが楽だったり、気軽にコンテナを起動することが可能だったりします。
+- Docker Engine は **コンテナを乗せるソフトウェア**
+- Docker CLI は **コンテナなどを操作するコマンド**
+- Docker Desktop は **Linux や Docker Xxx が一式入ってるアプリケーション**
+- Docker Compose は **コマンドをまとめて実行してくれるツール**
+- Docker Hub は **イメージレジストリの Saas サービス**
+- ECS / GKE は **Docker Engine の入ったコンテナ管理サービス**
+- ECR / GCR は **非公開のイメージレジストリ**
+- Kubernetes は **起動中のコンテナを見てくれるソフトウェア**
 
-気軽に起動できるので「テストを実行する時だけ起動して数分で削除する」という小さいサイクルでクリーンな環境を使うことができます。
-
-### デプロイしやすい
-ローカル開発環境を直接ホストマシンで構築したり仮想サーバで構築したりする場合は、ローカルで構築したものとデプロイしたいものの単位がずれていることが大半だと思います。
-
-たとえば「Vagrant で Ubuntu と PHP を構築して `.php` を動かす」という仮想サーバでローカル開発をして、デプロイする時は「サーバに PHP はインストール済みだから `.php` だけデプロイしたい」というようにずれが生じます。
-
-e
-
-このずれが「Vagrant そのものと、さらに別に `.php` をデプロイする方法が必要」というコストになったり、「Vagrant の PHP がサーバの PHP と違った」というリスクになったりします。
-
-![image](/images/picture/picture.003.jpeg)
-
-対して Docker コンテナは Docker Engine の上で動きます。
-
-Docker コンテナであれば「PHP のインストールされた `.php` が動くコンテナ」をローカルの Docker Engine で動かして開発し、デプロイする時は「サーバの Docker Engine の上に置く」のでずれが生じません。
-
-![image](/images/picture/picture.004.jpeg)
-
-## 注意点
-### ホストマシンの OS の違いが影響する可能性がある
-Docker コンテナは実際はホスト OS で動いているので、その違いがコンテナに影響してしまう可能性があります
-
-![image](/images/picture/picture.005.jpeg)
-
-そのため、Docker は Windows では相性が悪いなどの話もあるようです^[持っていないので実体験としてはわかりませんが、GitBash などで利用しているとまれに細かい挙動が違ったりすることがあるようです]^[WSL 環境はわかりません]
-
-最近では M1 Mac で Docker を動かすのが大変というはなしもよく見かけます
-
-仮想化技術のはずなのになんでホスト OS が違うとそんなに違うの、という疑問の理由の一つでしょう
-
+混乱してしまった時は立ち返ってみてください。
