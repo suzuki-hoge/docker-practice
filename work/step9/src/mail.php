@@ -1,94 +1,67 @@
 <?php
 
-/*
- * GET
- */
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
-    /*
-     * view
-     */
-
-    echo '<h2>Mail Form</h2>
-          <form action="mail.php" method="post">
-              <input type="email" name="adr"  size="35" maxlength="30" placeholder="send to" />
-              <input type="text"  name="sub"  size="25" maxlength="20" placeholder="subject" />
-              <input type="text"  name="body" size="55" maxlength="50" placeholder="body" />
-              <input type="submit" value="send" />
-          </form>
-          <br><a href="select.php">mail history</a>
-          <br><a href="mail.php">mail form</a>';
-}
 
 /*
- * POST
+* parameters
  */
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$sendTo = $_POST['send_to'];
+$subject = $_POST['subject'];
+$body = $_POST['body'];
 
-    /*
-     * parameters
-     */
+/*
+ * mail
+ */
 
-    $adr = $_POST['adr'];
-    $sub = $_POST['sub'];
-    $body = $_POST['body'];
+$success = mail($sendTo, $subject, $body);
 
-    /*
-     * mail
-     */
+/*
+ * view
+ */
 
-    $success = mail($adr, $sub, $body);
+$message = $success ? '✅ Your mail has been sent.' : '❌ Failed mail sending.';
 
-    /*
-     * view
-     */
+echo "<div style='width: 40rem; margin-top: 2rem; margin-left: auto; margin-right: auto; border: 8px solid #ACF;'>
+        <div style='padding: 0 2rem 0 2rem; border: 2px solid #38F;'>
+          <h1 style='text-align: center;'>Mail Sending Result</h1>
+          <p style='font-size: 1.5rem; text-align: center;'>$message</p>
+          <hr>
+          <div style='text-align: center;'>
+            <a href='form.php'><p style='color: blue;'>Mail Form</p></a>
+            <a href='history.php'><p style='color: blue;'>Mail History</p></a>
+          </div>
+        </div>
+      </div>";
 
-    if ($success) {
-        echo '<h2>Mail Result</h2>
-              <p>✅ you got mail.</p>
-              <br><a href="select.php">mail history</a>
-              <br><a href="mail.php">mail form</a>';
-    } else {
-        echo '<h2>Mail Result</h2>
-              <p>❌ failed mail sending.</p>
-              <br><a href="select.php">mail history</a>
-              <br><a href="mail.php">mail form</a>';
-    }
+/*
+ * connect
+ */
 
-    if ($success) {
+$host = 'db';
+$port = '3306';
+$database = 'event';
+$dsn = sprintf('mysql:host=%s; port=%s; dbname=%s;', $host, $port, $database);
 
-        /*
-         * connect
-         */
+$username = 'hoge';
+$password = 'password';
 
-        $host = 'db';
-        $port = '3306';
-        $database = 'event';
-        $dsn = sprintf('mysql:host=%s; port=%s; dbname=%s;', $host, $port, $database);
+$pdo = new PDO($dsn, $username, $password);
 
-        $username = 'hoge';
-        $password = 'password';
+/*
+ * insert
+ */
 
-        $pdo = new PDO($dsn, $username, $password);
+date_default_timezone_set('Asia/Tokyo');
+$insert = $pdo->prepare("insert into mail (sent_to, subject, body, sent_at, result) values (:sentTo, :subject, :body, :now, :result)");
+$insert->bindValue(':sentTo', $sendTo);
+$insert->bindValue(':subject', $subject);
+$insert->bindValue(':body', $body);
+$insert->bindValue(':now', date('m/d H:i:s'));
+$insert->bindValue(':result', $success ? '1' : '0');
+$insert->execute();
 
-        /*
-         * insert
-         */
+/*
+ * disconnect
+ */
 
-        $insert = $pdo->prepare("insert into mail (adr, sub, body, at) values (:adr, :sub, :body, :at)");
-        $insert->bindValue(':adr', $adr);
-        $insert->bindValue(':sub', $sub);
-        $insert->bindValue(':body', $body);
-        $insert->bindValue(':at', date('Y-m-d H:i:s'));
-        $insert->execute();
-
-        /*
-         * disconnect
-         */
-
-        $pdo = null;
-    }
-}
-
+$pdo = null;

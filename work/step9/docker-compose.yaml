@@ -1,23 +1,25 @@
 version: '3.9'
+
 services:
-  php:
-    container_name: docker-practice-php
+  app:
+    container_name: docker-practice-app
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: docker/app/Dockerfile
     ports:
       - '18000:8000'
     volumes:
       - type: bind
         source: ./src
         target: /tmp/src
-    command: php -S 0.0.0.0:8000 -t /tmp/src    # 理由
+    command: php -S 0.0.0.0:8000 -t /tmp/src
 
   mail:
-# todo platform
-    image: schickling/mailcatcher
+    container_name: docker-practice-mail
+    image: mailhog/mailhog:v1.0.1
+    platform: linux/x86_64
     ports:
-      - "11080:1080"
+      - "18025:8025"
 
   db:
     container_name: docker-practice-db
@@ -28,19 +30,14 @@ services:
       - type: volume
         source: mysql-store
         target: /var/lib/mysql
-        volume:
-          nocopy: true
       - type: bind
         source: ./docker/db/init.sql
         target: /docker-entrypoint-initdb.d/init.sql
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_USER: hoge          # mac / make db
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: hoge
       MYSQL_PASSWORD: password
       MYSQL_DATABASE: event
+
 volumes:
   mysql-store:
-
-# - `Dockerfile` はイメージの定義 → 変わったら焼き直し → `build` をする `make init`
-# - `docker-compose.yml` はコンテナの起動の定義 → 変わったら再起動 → `up` & `down`
-
