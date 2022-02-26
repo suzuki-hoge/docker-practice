@@ -35,3 +35,13 @@ chapters:
   - 2-6-container-exec
   - 2-7-image
   - 2-8-dockerfile
+  - 3-1-summary
+  - 3-2-image
+  - 3-3-run
+  - 3-4-debug
+  - 3-5-bind-mount
+  - 3-6-volume
+  - 3-7-publish
+  - 3-8-network
+  - 3-9-docker-compose
+  - 3-10-trouble-shooting
