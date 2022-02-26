@@ -175,7 +175,7 @@ Dockerfile は既存のイメージにレイヤーをさらに積み上げるた
 実は Docker のコマンドは 2017 年 1 月にリリースされた v1.13 で大幅な変更が行われており、`docker run` が旧コマンド、`docker container run` が新コマンドとなっています。
 これは `docker run` や `docker build` のような `docker` 直下のコマンドが増えすぎて **なに** がわかりづらくなってしまったためで、v1.13 からはそれぞれ対象を明示できるサブコマンド形式の方を使うことが推奨されています。
 
-![image](/images/picture/picture.026.jpeg)
+![image](/images/picture/picture.027.jpeg)
 
 普段目にするコマンドはおそらく `docker run` や `docker build` などの旧コマンドが多いのではないかと思います。
 僕自身も短くて楽なので普段は旧コマンドを使っていますが、この本では **なに** が明瞭な新コマンドを使って説明を行います。
@@ -213,14 +213,14 @@ Docker を前提としたものがいくつかあるので、初学者のうち�
 ## Docker Compose
 Docker Compose は `docker-compose.yml` という Yaml ファイルを書くことにより、目的の違う複数のコンテナをまとめて起動したり、複数の `docker xxx create` などを実行してくれるツールです。
 
-![image](/images/picture/picture.017.jpeg)
+![image](/images/picture/picture.018.jpeg)
 
 Docker Compose は Docker Desktop に含まれており、`docker compose xxx` のようなコマンド体系になっています。
 
 Docker CLI のみで環境を構築しようとすると、多量の複雑なコマンドを誰でも何度でも同じく実行できるためには **Docker コマンドの手順書が必要** になります。
 この問題を、Docker Compose を使い詳細な命令は **全部 Yaml に書いて GitHub で共有** するという方法で解決することができるようになります。
 
-![image](/images/picture/picture.018.jpeg)
+![image](/images/picture/picture.019.jpeg)
 
 Docker を使って開発環境を構築する todo エンジニアにとって、Docker Compose は必須のスキルと言えるでしょう。
 
@@ -229,7 +229,7 @@ Docker を使って開発環境を構築する todo エンジニアにとって�
 ## Kubernetes
 Kubernetes は `todo` を書くことにより、同じコンテナを複数台起動してクラスタを構築したり、コンテナが意図せず停止してしまった時に自動で再起動をしたりするために導入するオーケストレーションソフトウェアです。
 
-![image](/images/picture/picture.022.jpeg)
+![image](/images/picture/picture.023.jpeg)
 
 Kubernetes も Docker Desktop に含まれており、`todo` のようなコマンド体系になっています。
 

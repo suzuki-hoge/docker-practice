@@ -102,7 +102,8 @@ http://localhost:18025 を開くと、メールサーバのメール一覧が表
 # この本では不要なもの
 - Docker Hub のアカウント
 - Amazon Web services や Google Cloud Platform などのアカウント
-- なんらか有料サービスの利用
+- GitHub のアカウント
+- なんらかの有料サービスへの登録、および課金
 - 特定のエディタ
 
 # おことわり
