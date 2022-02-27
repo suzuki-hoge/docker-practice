@@ -58,7 +58,7 @@ $ docker container exec  \
 ```
 
 ```:Container
-# mysql -h localhost -u hoge -ppassword event
+# mysql -h 127.0.0.1 -u hoge -ppassword event
 ```
 
 ```:Container
@@ -79,7 +79,7 @@ $ docker container exec                         \
     --interactive                               \
     --tty                                       \
     db                                          \
-    mysql -h localhost -u hoge -ppassword event
+    mysql -h 127.0.0.1 -u hoge -ppassword event
 ```
 
 ```:Container
@@ -134,7 +134,7 @@ mysql> select * from debug;
 $ docker container exec                                                   \
     --tty                                                                 \
     db                                                                    \
-    mysql -h localhost -u hoge -ppassword event -e 'select * from debug;'
+    mysql -h 127.0.0.1 -u hoge -ppassword event -e 'select * from debug;'
 
 +------+
 | id   |

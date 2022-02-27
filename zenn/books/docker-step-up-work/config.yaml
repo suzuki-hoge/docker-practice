@@ -39,8 +39,8 @@ chapters:
   - 3-2-image
   - 3-3-run
   - 3-4-debug
-  - 3-5-bind-mount
-  - 3-6-volume
+  - 3-5-volume
+  - 3-6-bind-mount
   - 3-7-publish
   - 3-8-network
   - 3-9-docker-compose

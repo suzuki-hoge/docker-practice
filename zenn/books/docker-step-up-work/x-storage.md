@@ -54,96 +54,15 @@ todo e
 ## ボリュームの作成とコンテナへのマウント
 ボリュームを扱うには、まずボリュームを作成します。
 
-```:コマンド
-$ docker volume create [option]
-```
-
-`[option]` は未指定でも良いですが、人間が扱いやすいように `--name` で名前をつけると良いでしょう。今回は `sample-volume` とします。
-
-以上を踏まえて、次のようにボリュームを作成します。
-
-```:Host Machine
-$ docker volume create --name sample-volume
-```
-
 次にコンテナ起動時に作成したボリュームをマウントします。
 
 マウントするには `--volume` オプションと `--mount` オプションがありますが、細かな点を除いてできることにほぼ違いはありません。
 この Book では両方のコマンドを掲載しますが、不慣れな場合は長いけどわかりやすくなる `--mount` の方で理解を深めることをおすすめします。
 
-まずは先に全ての設定を定められた順番で `:` 区切りで列挙する `--volume` オプションを使ってコンテナを起動します。
 
-`--volume` の指定方法は 1 つめがボリューム名で、2 つめがマウント先で、3 つめがオプションです。
-今回は先ほど作成した `sample-volume` を `/my-volume` にオプションなしでマウントするので、コンテナ起動のコマンドは次のようになります。
-
-```:Host Machine
-$ docker container run              \
-  --name ubuntu                     \
-  --rm                              \
-  --interactive                     \
-  --tty                             \
-  --volume sample-volume:/my-volume \
-  ubuntu:20.04                      \
-  bash
-
-# cd /my-volume
-```
-
-`/my-volume` というディレクトリがコンテナ内に存在することを確認できます。
-
-ディレクトリ内にファイルを書き残し、コンテナを ( `bash` の終了によって ) 終了します。
-
-```:Container
-# cd /my-volume
-
-# echo 'Hello Volume.' > hello.txt
-
-# exit
-```
-
-次は `key=val` 形式で指定する `--mount` オプションを使い、同じボリュームを同じディレクトリにマウントしてコンテナを起動します。
-
-`--mount` の指定方法は `type` と `source` と `destination` のほか、`readonly` などのオプションを任意の順番で指定します。
-`source` は `src` など、`destination` は `dst` や `target` などの略記も存在します。
-今回はボリュームをマウントするので `type=volume` で、残りは `src` と `dst` を使って指定します。
-
-```:Host Machine
-$ docker container run                                 \
-  --name ubuntu                                        \
-  --rm                                                 \
-  --interactive                                        \
-  --tty                                                \
-  --mount type=volume,src=sample-volume,dst=/my-volume \
-  ubuntu:20.04                                         \
-  bash
-
-# cat /my-volume/hello.txt
-Hello Volume.
-```
 
 コンテナを跨いで `hello.txt` が存在することを確認できます。
 
-## ボリュームの実態
-作成したボリュームは `docker volume inspect` で詳細を把握することができます。
-
-```:Host Machine
-$ docker volume inspect sample-volume
-[
-    {
-        "CreatedAt": "2022-02-06T23:07:52Z",
-        "Driver": "local",
-        "Labels": {},
-        "Mountpoint": "/var/lib/docker/volumes/sample-volume/_data",
-        "Name": "sample-volume",
-        "Options": {},
-        "Scope": "local"
-    }
-]
-```
-
-ここの `Mountpoint` がデータのある場所の実体なのですが、これは Docker Engine の VM 上のパスのことなのでホストマシンで `ls` しても何も確認できません。
-
-ボリュームは Docker が管理しているので単純に読み書きすることはできない、ということだけ理解しておきましょう。
 
 ## ボリュームの活用例
 

@@ -28,10 +28,10 @@ title: "３部: 構成の全体図"
 [３部: デバッグ]() ( 余談 )
 ![image](/images/structure/structure.071.jpeg)
 
-[３部: バインド・マウント]()
+[３部: ボリューム]()
 ![image](/images/structure/structure.076.jpeg)
 
-[３部: ボリューム]()
+[３部: バインド・マウント]()
 ![image](/images/structure/structure.080.jpeg)
 
 [３部: ポート]()
