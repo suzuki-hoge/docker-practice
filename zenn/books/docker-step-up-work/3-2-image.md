@@ -130,13 +130,17 @@ sendmail_path = /usr/bin/msmtp -t
 ## msmtp の設定ファイルを追加
 最後に msmtp 自体の設定でが、これの中身は現時点ではメールサーバについて何もわからないので **まだ中身は書けません**。
 
-`COPY` 命令の追記と空ファイル作成だけやっておきます。
+`COPY` 命令の追記と空欄ファイルの作成だけやっておきます。
 
 ```Dockerfile:docker/app/Dockerfile
 COPY ./docker/app/mailrc /etc/msmtprc
 ```
 
 ```txt:docker/app/mailrc
+account default
+host ???
+port ???
+from "service@d-prac.mock"
 ```
 
 ## イメージの作成
