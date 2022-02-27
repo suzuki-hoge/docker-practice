@@ -6,8 +6,12 @@ title: "３部: イメージの作成"
 
 ![image](/images/structure/structure.057.jpeg)
 
-# はじめに
-イメージの作る前に、簡単にいくつか整理しておきます。
+# このページでやること
+- Dockerfile の作成
+- `docker image build` の実行
+
+# 作業を始める前に
+イメージを作る前に、簡単にいくつか整理しておきます。
 
 ## App コンテナについて
 この本では [Ubuntu](https://hub.docker.com/_/ubuntu) イメージをベースにして、自分で PHP とメール送信のコマンドをインストールしたり設定を行ったりします。
@@ -15,7 +19,12 @@ title: "３部: イメージの作成"
 PHP のインストールから行うのは学習のためであり、実運用では Docker Hub で **言語やフレームワークの公式イメージの中から選んだイメージをベースにする** ことが多いです。
 とはいえそれらの公式イメージがそのまま未設定で用途に合致することは多くないため、**イメージの作成は必要スキル** です。
 
-todo: nginx / apache / built-in
+:::message
+PHP の場合は、通常は言語のセットアップとは別に Apache や Nginx をセットアップしますが、この本では PHP の [ビルトインウェブサーバー](https://www.php.net/manual/ja/features.commandline.webserver.php) を使います。
+これは PHP 自体を簡易な Web サーバにすることができる **開発環境のための PHP の標準機能** です。
+
+Apache や Nginx で構築しておかないとコンテナをそのままリリースできなくなってしまうので、この構成は演習に限るとご理解ください。
+:::
 
 ## DB コンテナについて
 この本では [MySQL](https://hub.docker.com/_/mysql) イメージを使います。
@@ -89,7 +98,7 @@ RUN apt update                                       \
 
 PHP は自分でメールを送信しているわけではなく、Sendmail や msmtp のような SMTP クライアントを使ってメールを送信しており、そのコマンドの実体を設定ファイルで教えてあげる必要があります。
 
-これも **行っているのは PHP の設定なので、調べ物をするときに Docker は関係ない** です。
+これも **PHP の設定なので調べ物をするときに Docker は関係ない** です。
 
 どこに配置すれば反映できるのか調べ、次のように `Dockerfile` の末尾に書き加えます。
 
@@ -158,7 +167,7 @@ RUN apt install -yqq msmtp msmtp-mta
 COPY ./docker/app/mailrc /etc/msmtprc
 ```
 
-タグを決め、`Dockerfile` の場所を指定し、`COPY` するファイルのパスを考えて、次のようにビルドします。
+TAG を決め、`Dockerfile` の場所を指定し、`COPY` するファイルのパスを考えて、次のようにビルドします。
 
 ```:Host Machine
 $ docker image build             \
@@ -168,8 +177,6 @@ $ docker image build             \
 ```
 
 ビルドできればまずは成功です。
-
-問題が出て解決できない場合は、[３部]() を見てみてください。
 
 # DB イメージの作成
 DB イメージを作るための Dockerfile は、次の内容を実現する２命令です。
@@ -238,7 +245,7 @@ FROM --platform=linux/amd64 mysql:5.7
 COPY ./docker/db/my.cnf /etc/my.cnf
 ```
 
-タグを決め、`Dockerfile` の場所を指定し、`COPY` するファイルのパスを考えて、次のようにビルドします。
+TAG を決め、`Dockerfile` の場所を指定し、`COPY` するファイルのパスを考えて、次のようにビルドします。
 
 ```:Host Machine
 $ docker image build            \
@@ -249,8 +256,6 @@ $ docker image build            \
 
 ビルドできればまずは成功です。
 
-問題が出て解決できない場合は、[３部]() を見てみてください。
-
 ## Mail イメージの作成
 先述の通り [MailHog](https://hub.docker.com/r/mailhog/mailhog) はそのまま使うため、ビルドは必要ありません。
 
@@ -259,13 +264,22 @@ $ docker image build            \
 `mailhog/mailhog:v1.0.1` というイメージ名だけ控えておきましょう。
 
 # 初めて構築するときは
-todo
+この本ではいきなり Dockerfile を書きましたが、**構築手順が定かではない場合はこの方法は効率が悪い** です。
+
+「PHP のインストールってこれでいいのかな」「`msmtp` ってどこにインストールされてオプションは何があるんだろうか」という状態なら、**一度ただベースイメージを起動して自分で `bash` で試行錯誤する** とよいでしょう。
+
+![image](/images/structure/structure.062.jpeg)
+
+Dockerfile をゼロから書く場合は、基本的には「ベースイメージをただ起動して `bash` で試す」「そこで動いたコマンドを Dockerfile にペーストする」というサイクルになるでしょう。
+
+![image](/images/structure/structure.063.jpeg)
 
 # まとめ
 コンテナの起動は次の [３部]() で行うので、このページではイメージのビルドが成功していれば十分です。
 
-行ったことを簡潔にまとめます。
+todo github commit
 
+## やったこと
 - App コンテナ
   - `FROM` でベースイメージを指定
   - `RUN` で PHP をインストール
@@ -277,12 +291,16 @@ todo
   - `COPY` で文字コードとログを設定 
 - Mail コンテナ
   - 特になし
+
+## ポイント    
 - `RUN` を書く場合に求められるのは **Linux の知識**    
+- 手順が定かでない場合、 **まずはコンテナを起動して手作業してみる** のが大事
 
-混乱してしまった時は立ち返ってみてください。
+## できるようになったこと
+- `docker image build` の正常終了
 
-# このページで確定したこと
+![image](/images/structure/structure.057.jpeg)
 
-# このページで確定できなかったこと
-
-todo e
+## やりきれなかったこと
+- App コンテナのメールサーバの接続設定
+  - 解決は [３部]()

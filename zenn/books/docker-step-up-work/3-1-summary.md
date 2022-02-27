@@ -2,7 +2,7 @@
 title: "３部: 構成の全体図"
 ---
 
-３部は [１部]() でデモしたメールフォームのアプリケーションを構築しながら、実際に必要になるコンテナの連携などを学びます。
+３部は [１部]() でデモしたメールフォームのアプリケーションを構築しながら、コンテナの連携などを学びます。
 
 ![image](/images/demo-form-1.png)
 
@@ -23,25 +23,25 @@ title: "３部: 構成の全体図"
 ![image](/images/structure/structure.057.jpeg)
 
 [３部: コンテナの起動]()
-![image](/images/structure/structure.060.jpeg)
+![image](/images/structure/structure.067.jpeg)
 
 [３部: デバッグ]() ( 余談 )
-![image](/images/structure/structure.061.jpeg)
+![image](/images/structure/structure.071.jpeg)
 
 [３部: バインド・マウント]()
-![image](/images/structure/structure.063.jpeg)
+![image](/images/structure/structure.076.jpeg)
 
 [３部: ボリューム]()
-![image](/images/structure/structure.064.jpeg)
+![image](/images/structure/structure.080.jpeg)
 
 [３部: ポート]()
-![image](/images/structure/structure.065.jpeg)
+![image](/images/structure/structure.084.jpeg)
 
 [３部: ネットワーク]()
-![image](/images/structure/structure.066.jpeg)
+![image](/images/structure/structure.088.jpeg)
 
 [３部: Docker Compose]()
-![image](/images/structure/structure.067.jpeg)
+![image](/images/structure/structure.092.jpeg)
 
 最後まで読み進めると、こと「開発環境を Docker で構築する」という点において **「全然わからない」ということはなくなっているはず** です。
 
