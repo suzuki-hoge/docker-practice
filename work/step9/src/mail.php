@@ -21,6 +21,7 @@ $success = mail($sendTo, $subject, $body);
 
 $message = $success ? '✅ Your mail has been sent.' : '❌ Failed mail sending.';
 
+echo '<title>Mail Result | Docker Practice</title>' . PHP_EOL;
 echo "<div style='width: 40rem; margin-top: 2rem; margin-left: auto; margin-right: auto; border: 8px solid #ACF;'>
         <div style='padding: 0 2rem 0 2rem; border: 2px solid #38F;'>
           <h1 style='text-align: center;'>Mail Sending Result</h1>

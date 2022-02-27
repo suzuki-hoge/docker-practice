@@ -32,6 +32,7 @@ $pdo = null;
  * view
  */
 
+echo '<title>Mail History | Docker Practice</title>' . PHP_EOL;
 echo '<div style="width: 40rem; margin-top: 2rem; margin-left: auto; margin-right: auto; border: 8px solid #ACF;">
         <div style="padding: 0 2rem 0 2rem; border: 2px solid #38F;">
           <h1 style="text-align: center; margin-bottom: 0;">Mail History</h1>
