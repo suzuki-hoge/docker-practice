@@ -250,10 +250,10 @@ Mail コンテナも DB コンテナと同様にデフォルト命令のまま�
 対話しない、何が起こるか確認したいのでバックグラウンドにしない、名前と削除対応はいつも通り、**アーキテクチャの設定が必要**、命令を変えない、と整理して次のコマンドでコンテナを起動します。
 
 ```:Host Machine
-$ docker container run                     \
-    --name mail                            \
-    --rm                                   \
-    --platform linux/amd64                 \
+$ docker container run     \
+    --name mail            \
+    --rm                   \
+    --platform linux/amd64 \
     mailhog/mailhog:v1.0.1
 
 2022/02/26 14:09:42 [SMTP] Binding to address: 0.0.0.0:1025
