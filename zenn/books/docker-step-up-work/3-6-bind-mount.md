@@ -8,6 +8,12 @@ title: "３部: バインド・マウント"
 
 ![image](/images/structure/structure.080.jpeg)
 
+
+
+todo: init.sql
+
+
+
 # このページでやること
 - App コンテナ
   - 起動コマンドをバインド・マウントを使うように修正
