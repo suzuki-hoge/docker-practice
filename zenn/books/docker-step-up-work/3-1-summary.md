@@ -31,7 +31,7 @@ title: "３部: 構成の全体図"
 [３部: ボリューム]()
 ![image](/images/structure/structure.076.jpeg)
 
-[３部: バインド・マウント]()
+[３部: バインドマウント]()
 ![image](/images/structure/structure.080.jpeg)
 
 [３部: ポート]()
