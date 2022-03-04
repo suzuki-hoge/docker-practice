@@ -49,3 +49,5 @@ title: "３部: 構成の全体図"
 
 
 todo: clone base
+
+todo: 4 php file relations
