@@ -1,38 +1,34 @@
 ---
-title: "３部: イメージの作成"
+title: "３部: イメージのビルド"
 ---
 
-[２部]() で学んだことを実践して、３コンテナ分のイメージを用意します。
+【 ２部: イメージの基礎 】で学んだことを実践して、３コンテナ分のイメージを用意します。
 
 # 全体構成とハイライト
 ![image](/images/structure/structure.057.jpeg)
 
 ## やることの確認
-\ | やること                       | できるようになること                                                                                
+＼ | やること                       | できるようになること                                                                                
 :-- | :--                            | :--                                                                                                 
-App|👉　イメージをビルド               | メール送信ができる PHP を使える
-App|コンテナを起動                 | PHP が実行できる<br>メール送信の準備ができる<br>Web サーバが起動できる                  
+App|👉　イメージをビルド               | PHP が準備できる<br>メール送信が準備できる
+App|コンテナを起動しビルド結果を確認<br>Web サーバを起動                 | Dockerfile の妥当性が確認できる<br>Web サーバが起動できる                  
 App|ソースコードをバインドマウント | ホストマシンの `.php` 編集が即反映される                                                    
 App|コンテナのポートを公開         | ブラウザからアクセスできる                                            
 App|コンテナをネットワークに接続<br>データベースサーバの接続設定<br>メールサーバの接続設定   | DB コンテナに接続できる<br>Mail コンテナに接続できる
 App|Docker Compose 化              | これらを１コマンドで再現できる
 DB| 👉　イメージをビルド                                                         | 文字コードとログの設定ができる
-DB| 環境変数を指定してコンテナを起動                                         | ユーザとデータベースを作成できる<br>MySQL サーバが起動できる
+DB| 環境変数を指定してコンテナを起動                                         | Dockerfile の妥当性が確認できる<br>MySQL サーバが起動できる<br>ユーザとデータベースを作成できる
 DB| データ置場にボリュームをマウント                                 | テーブルがコンテナ削除で消えなくなる                                      
 DB| 初期化クエリをバインドマウント                                       | コンテナ起動時にテーブルが作成される                                            
 DB| コンテナをネットワークに接続<br>コンテナにエイリアスを設定 | App コンテナからホスト名で接続できる                                            
 DB| Docker Compose 化                                                        | これらを１コマンドで再現できる
 Mail| 👉　イメージを選定                                                           | モックメールサーバの起動準備ができる                                      
-Mail| コンテナを起動                                                           | Web サーバが起動できる<br>SMTP サーバが起動できる                           
+Mail| コンテナを起動                                                           | SMTP サーバが起動できる<br>Web サーバが起動できる                           
 Mail| コンテナのポートを公開                                                   | ブラウザからアクセスできる                            
 Mail| コンテナをネットワークに接続<br>コンテナにエイリアスを設定 | App コンテナからホスト名で接続できる                                            
 Mail| Docker Compose 化                                                        | これらを１コマンドで再現できる
-ほか| ボリュームを作成                                                        | 準備完了
-ほか| ネットワークを作成                                                        | 準備完了
-
-# このページでやること
-- Dockerfile の作成
-- `docker image build` の実行
+ほか| ボリュームを作成                                                        | マウントする準備ができる
+ほか| ネットワークを作成                                                        | コンテナを接続する準備ができる
 
 # 作業を始める前に
 イメージを作る前に、簡単にいくつか整理しておきます。
@@ -59,25 +55,13 @@ Apache や Nginx で構築しておかないとコンテナをそのままリリ
 ## Mail コンテナについて
 この本では [MailHog](https://hub.docker.com/r/mailhog/mailhog) というイメージを取得して、一切手を入れずそのまま使います。
 
-MailHog はモックのメールサーバを起動してくれる OSS で、ここに向かって送信したメールは実際には送信されません。
-送信したメールの内容は、MailHog の Web サーバで確認することになります。
+MailHog はモックのメールサーバを起動してくれる OSS で、このメールサーバに向かって送信したメールは宛先まで転送されません。
+実際に受信できない代わりに、送信した ( はずの ) メールの内容を MailHog の Web サーバで確認することができます。
 
 **実運用でも同じように活用する** ことができます。
 
-## イメージの取得と作成について
-全体構成図のこのページでハイライトしている部分は次のように `image pull` と `image build` の２コマンドがあります。
-
-![image](/images/structure/structure.057.jpeg)
-
-厳密に分割すると `image pull` と `image build` は次のように細分化できますが、`image build` の初回実行時に `image pull` も実行されるので、明示的に分けて実行することはあまりありません。
-
-![image](/images/structure/structure.058.jpeg)
-
-![image](/images/structure/structure.059.jpeg)
-
-この本でも `image build` に絞って解説します。
-
-# App イメージの作成
+# 構築
+## App イメージのビルド
 App イメージを作るための Dockerfile は、次の内容を実現する５命令です。
 
 - ベースイメージの指定
@@ -88,9 +72,12 @@ App イメージを作るための Dockerfile は、次の内容を実現する�
 
 ![image](/images/structure/structure.060.jpeg)
 
+また、最後に動作確認で必要になるいくつかのコマンドをインストールしておくことにします。
+これらは確認作業に限るものなので、全体構成図などでは表記を省きます。
+
 まずは `docker/app/Dockerfile` を作成してください。
 
-## ベースイメージの指定
+### ベースイメージの指定
 ベースイメージの指定は `FROM` で行います。
 
 本来は使うイメージは Docker Hub で探しますが、Ubuntu イメージは１部で使った `ubuntu:20.04` を使うことにするので探すのは割愛します。
@@ -101,7 +88,7 @@ App イメージを作るための Dockerfile は、次の内容を実現する�
 FROM ubuntu:20.04
 ```
 
-## PHP のインストール
+### PHP のインストール
 インストールなどの Linux 操作は `RUN` で行います。
 
 基本的に **`RUN` を書く場合に求められるのは Docker の知識ではなく Linux の知識** であることが大半です。
@@ -110,17 +97,17 @@ FROM ubuntu:20.04
 以上を踏まえ、調べてわかった手順を `Dockerfile` の末尾に書き加えます。
 
 ```Dockerfile:docker/app/Dockerfile
-RUN apt update                                       \
- && apt install -y software-properties-common        \
- && LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
- && apt update                                       \
- && apt install -y php8.0 php8.0-mysql
+RUN apt update                                       && \
+    apt install -y software-properties-common        && \
+    LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php && \
+    apt update                                       && \
+    apt install -y php8.0 php8.0-mysql
 ```
 
-## PHP の設定ファイルを追加
+### PHP の設定ファイルを追加
 設定ファイルの追加などは `COPY` で行います。
 
-PHP は自分でメールを送信しているわけではなく、Sendmail や msmtp のような SMTP クライアントを使ってメールを送信しており、そのコマンドの実体を設定ファイルで教えてあげる必要があります。
+PHP は自分でメールを送信しているわけではなく、Sendmail や msmtp のような SMTP クライアントを使ってメールを送信するため、そのコマンドのパスを PHP の設定ファイルで指定する必要があります。
 
 これも **PHP の設定なので調べ物をするときに Docker は関係ない** です。
 
@@ -130,12 +117,12 @@ PHP は自分でメールを送信しているわけではなく、Sendmail や 
 COPY ./docker/app/mail.ini /etc/php/8.0/cli/conf.d/mail.ini
 ```
 
-それから `COPY` するためのファイルを作成しますが、まだ SMTP クライアントについて判明していないので現時点では空ファイルです。
+それから `COPY` するためのファイルを作成しますが、まだ SMTP クライアントについて判明していないので、現時点では空ファイルです。
 
 ```txt:docker/app/mail.ini
 ```
 
-## msmtp のインストール
+### msmtp のインストール
 msmtp はメールサーバの SMTP クライアントです。
 
 PHP をインストールしたときと同様に手順を調べ、次のように `Dockerfile` の末尾に書き加えます。
@@ -151,10 +138,10 @@ RUN apt install -yqq msmtp msmtp-mta
 sendmail_path = /usr/bin/msmtp -t
 ```
 
-## msmtp の設定ファイルを追加
-最後に msmtp 自体の設定でが、これの中身は現時点ではメールサーバについて何もわからないので **まだ中身は書けません**。
+### msmtp の設定ファイルを追加
+メールを送信する msmtp コマンドにメールサーバのホスト名などを設定しなければなりませんが、設定項目はまだメールサーバのホスト名などがわからないので **ネットワークを構築するまで書けません**。
 
-`COPY` 命令の追記と空欄ファイルの作成だけやっておきます。
+そのため配置先だけ調べて空欄を含むファイルを `COPY` で配置するだけとします。
 
 ```Dockerfile:docker/app/Dockerfile
 COPY ./docker/app/mailrc /etc/msmtprc
@@ -167,7 +154,18 @@ port ???
 from "service@d-prac.mock"
 ```
 
-## イメージの作成
+### 動作確認用コマンドのインストール
+最後に、`curl` と `ping` と `ps` と `vi` と `tree` をインストールしておきます。
+
+アプリケーションを動かすためには必要ありませんし、たまに必要になる程度ならコンテナに直接インストールして使い捨てても良いのですが、この本では動作確認を行う時にたびたび使用するためイメージに含めておくことにしました。
+
+Dockerfile の末尾に次のように書き足してください。
+
+```Dockerfile:docker/app/Dockerfile
+RUN apt install -y curl iputils-ping procps vim tree
+```
+
+### App イメージの作成
 結果的に次のようになっているはずです。
 
 ```:Host Machine
@@ -182,20 +180,22 @@ docker
 ```Dockerfile:docker/app/Dockerfile
 FROM ubuntu:20.04
 
-RUN apt update                                       \
- && apt install -y software-properties-common        \
- && LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php \
- && apt update                                       \
- && apt install -y php8.0 php8.0-mysql
+RUN apt update                                       && \
+    apt install -y software-properties-common        && \
+    LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php && \
+    apt update                                       && \
+    apt install -y php8.0 php8.0-mysql
 
 COPY ./docker/app/mail.ini /etc/php/8.0/cli/conf.d/mail.ini
 
 RUN apt install -yqq msmtp msmtp-mta
 
 COPY ./docker/app/mailrc /etc/msmtprc
+
+RUN apt install -y curl iputils-ping procps vim tree
 ```
 
-TAG を決め、`Dockerfile` の場所を指定し、`COPY` するファイルのパスを考えて、次のようにビルドします。
+TAG を決め、`Dockerfile` の場所を指定し、`COPY` するファイルのパスを考えて、次のようにイメージをビルドします。
 
 ```:Host Machine
 $ docker image build             \
@@ -204,9 +204,10 @@ $ docker image build             \
     .
 ```
 
-ビルドできればまずは成功です。
+### ビルドできたことを確認する
+`image ls` を使って `docker-practice:app` が存在することを確認してください。
 
-# DB イメージの作成
+## DB イメージのビルド
 DB イメージを作るための Dockerfile は、次の内容を実現する２命令です。
 
 - ベースイメージの指定
@@ -216,7 +217,7 @@ DB イメージを作るための Dockerfile は、次の内容を実現する�
 
 まずは `docker/db/Dockerfile` を作成してください。
 
-## ベースイメージの指定
+### ベースイメージの指定
 Docker Hub で `mysql` と検索すると、[MySQL](https://hub.docker.com/_/mysql) が見つかります。
 
 [Tags](https://hub.docker.com/_/mysql?tab=tags) を見ると主に 5.7 系と 8 系がありますが、今回は `mysql:5.7` を使います。
@@ -229,10 +230,10 @@ Docker Hub で `mysql` と検索すると、[MySQL](https://hub.docker.com/_/mys
 FROM --platform=linux/amd64 mysql:5.7
 ```
 
-## MySQL の設定ファイルを追加
-これは **MySQL について調べれば簡単** です。
+### MySQL の設定ファイルを追加
+これは **Docker ではなく MySQL について調べ**、内容と配置先を確認します。
 
-文字コードとログの設定をしたいので、次のように設定ファイルを作成します。
+まず内容ですが、文字コードとログの設定をしたいので次のような設定ファイルを作成します。
 
 ```txt:docker/db/my.cnf
 [mysqld]
@@ -246,13 +247,13 @@ log-error            = /var/log/mysql/error.log
 default-character-set = utf8
 ```
 
-これを追加するための命令を `Dockerfile` に追記します。
+次にこれをイメージに追加するための `COPY` 命令を `Dockerfile` に追記します。
 
 ```Dockerfile:docker/app/Dockerfile
 COPY ./docker/db/my.cnf /etc/my.cnf
 ```
 
-## イメージの作成
+### イメージの作成
 結果的に次のようになっているはずです。
 
 ```:Host Machine
@@ -282,16 +283,17 @@ $ docker image build            \
     .
 ```
 
-ビルドできればまずは成功です。
+### ビルドできたことを確認する
+`image ls` を使って `docker-practice:db` が存在することを確認してください。
 
-## Mail イメージの作成
+## Mail イメージの選定
 先述の通り [MailHog](https://hub.docker.com/r/mailhog/mailhog) はそのまま使うため、ビルドは必要ありません。
 
 イメージの取得も `docker container run` についでにやってもらうことにするので、`docker image pull` すら必要ありません。
 
 `mailhog/mailhog:v1.0.1` というイメージ名だけ控えておきましょう。
 
-# 初めて構築するときは
+# ヒント: 初めて構築するときは
 この本ではいきなり Dockerfile を書きましたが、**構築手順が定かではない場合はこの方法は効率が悪い** です。
 
 「PHP のインストールってこれでいいのかな」「`msmtp` ってどこにインストールされてオプションは何があるんだろうか」という状態なら、**一度ただベースイメージを起動して自分で `bash` で試行錯誤する** とよいでしょう。
@@ -310,30 +312,32 @@ https://github.com/suzuki-hoge/docker-practice/tree/tmp
 混乱してしまったときに参考にしてください。
 
 ## ポイント
-- `RUN` を書く場合に求められるのは **Linux の知識**
-- 手順が定かでない場合、 **まずはコンテナを起動して手作業してみる** のが大事
-
-![image](/images/structure/structure.057.jpeg)
+- `FROM` を書くときは、**Docker Hub で探す**
+- `RUN` を書くときは、**Linux の知識** が必要になる
+- `COPY` を書くときは、**その製品の知識** が必要になる
+- 手順が定かでない場合、 **まずはコンテナを起動して手作業してみる** のが有効
 
 ## できるようになったことの確認
-\ | やること                       | できるようになること                                                                                
+＼ | やること                       | できるようになること                                                                                
 :-- | :--                            | :--                                                                                                 
-App|👉　イメージをビルド               | ✅　メール送信ができる PHP を使える
-App|コンテナを起動                 | PHP が実行できる<br>メール送信の準備ができる<br>Web サーバが起動できる                  
+App|👉　イメージをビルド               | ✅　PHP が準備できる<br>✅　メール送信が準備できる
+App|コンテナを起動しビルド結果を確認<br>Web サーバを起動                 | Dockerfile の妥当性が確認できる<br>Web サーバが起動できる                  
 App|ソースコードをバインドマウント | ホストマシンの `.php` 編集が即反映される                                                    
 App|コンテナのポートを公開         | ブラウザからアクセスできる                                            
 App|コンテナをネットワークに接続<br>データベースサーバの接続設定<br>メールサーバの接続設定   | DB コンテナに接続できる<br>Mail コンテナに接続できる
 App|Docker Compose 化              | これらを１コマンドで再現できる
 DB| 👉　イメージをビルド                                                         | ✅　文字コードとログの設定ができる
-DB| 環境変数を指定してコンテナを起動                                         | ユーザとデータベースを作成できる<br>MySQL サーバが起動できる
+DB| 環境変数を指定してコンテナを起動                                         | Dockerfile の妥当性が確認できる<br>MySQL サーバが起動できる<br>ユーザとデータベースを作成できる
 DB| データ置場にボリュームをマウント                                 | テーブルがコンテナ削除で消えなくなる                                      
 DB| 初期化クエリをバインドマウント                                       | コンテナ起動時にテーブルが作成される                                            
 DB| コンテナをネットワークに接続<br>コンテナにエイリアスを設定 | App コンテナからホスト名で接続できる                                            
 DB| Docker Compose 化                                                        | これらを１コマンドで再現できる
-Mail| 👉　イメージを選定                                                           | ✅　モックメールサーバの起動準備ができる                                      
-Mail| コンテナを起動                                                           | Web サーバが起動できる<br>SMTP サーバが起動できる                           
+Mail| 👉　イメージを選定                                                           | ✅　SMTP サーバが起動できる<br>✅　Web サーバが起動できる                                      
+Mail| コンテナを起動                                                           | SMTP サーバが起動できる<br>Web サーバが起動できる                           
 Mail| コンテナのポートを公開                                                   | ブラウザからアクセスできる                            
 Mail| コンテナをネットワークに接続<br>コンテナにエイリアスを設定 | App コンテナからホスト名で接続できる                                            
 Mail| Docker Compose 化                                                        | これらを１コマンドで再現できる
-ほか| ボリュームを作成                                                        | 準備完了
-ほか| ネットワークを作成                                                        | 準備完了
+ほか| ボリュームを作成                                                        | マウントする準備ができる
+ほか| ネットワークを作成                                                        | コンテナを接続する準備ができる
+
+![image](/images/structure/structure.057.jpeg)

@@ -43,10 +43,10 @@ chapters:
   - 3-1-summary
   - 3-2-image
   - 3-3-run
-  - 3-4-debug
-  - 3-5-volume
-  - 3-6-bind-mount
-  - 3-7-publish
-  - 3-8-network
-  - 3-9-docker-compose
-  - 3-10-trouble-shooting
+  - 3-3-debug
+  - 3-4-volume
+  - 3-5-bind-mount
+  - 3-6-publish
+  - 3-7-network
+  - 3-8-docker-compose
+  - 3-9-trouble-shooting

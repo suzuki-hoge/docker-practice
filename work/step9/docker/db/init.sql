@@ -6,4 +6,3 @@ create table event.mail
     sent_at char(32) not null,
     result  char(1) not null
 );
-
