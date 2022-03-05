@@ -4,8 +4,8 @@ services:
   app:
     container_name: docker-practice-app
     build:
-      context: .
       dockerfile: docker/app/Dockerfile
+      context: .
     ports:
       - '18000:8000'
     volumes:
@@ -14,21 +14,14 @@ services:
         target: /tmp/src
     command: php -S 0.0.0.0:8000 -t /tmp/src
 
-  mail:
-    container_name: docker-practice-mail
-    image: mailhog/mailhog:v1.0.1
-    platform: linux/x86_64
-    ports:
-      - "18025:8025"
-
   db:
     container_name: docker-practice-db
     build:
-      context: .
       dockerfile: docker/db/Dockerfile
+      context: .
     volumes:
       - type: volume
-        source: mysql-store
+        source: docker-practice-db-store
         target: /var/lib/mysql
       - type: bind
         source: ./docker/db/init.sql
@@ -39,5 +32,12 @@ services:
       MYSQL_PASSWORD: password
       MYSQL_DATABASE: event
 
+  mail:
+    container_name: docker-practice-mail
+    image: mailhog/mailhog:v1.0.1
+    platform: linux/x86_64
+    ports:
+      - "18025:8025"
+
 volumes:
-  mysql-store:
+  docker-practice-db-store:
