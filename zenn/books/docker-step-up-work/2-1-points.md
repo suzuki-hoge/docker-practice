@@ -175,7 +175,7 @@ Dockerfile は [GitHub](https://github.co.jp/) などで共有するのが望ま
 実は Docker のコマンドは 2017 年 1 月にリリースされた v1.13 で大幅な変更が行われており、`docker run` が旧コマンド、`docker container run` が新コマンドとなっています。
 これは `docker run` や `docker build` のような `docker` 直下のコマンドが増えすぎて **なに** がわかりづらくなってしまったためで、v1.13 からはそれぞれ対象を明示できるサブコマンド形式の方を使うことが推奨されています。
 
-![image](/images/picture/picture.027.jpeg)
+![image](/images/picture/picture.028.jpeg)
 
 普段目にするコマンドはおそらく `docker run` や `docker build` などの旧コマンドが多いのではないかと思います。
 僕自身も短くて楽なので普段は旧コマンドを使っていますが、この本では **なに** が明瞭な新コマンドを使って説明を行います。
@@ -227,7 +227,7 @@ Docker を使って開発環境を構築する ソフトウェアエンジニア
 この本では「Docker を正しく理解する」→「Docker を使って環境構築をする」→「Docker Compose に置き換えて楽をする」という流れで導入し、最終的にはとても複雑な構成を `compose up` のみで即時起動できる状態を目指します。
 
 ## Kubernetes
-Kubernetes は Json ファイルや Yaml ファイルを書くことにより、同じコンテナを複数台起動してクラスタを構築したり、コンテナが意図せず停止してしまった時に自動で再起動をしたりするために導入するオーケストレーションソフトウェアです。
+Kubernetes は Json ファイルや Yaml ファイルを書くことにより、同じコンテナを複数台起動してクラスタを構築したり、コンテナの監視やコンテナの自動再起動を簡単に行えるオーケストレーションソフトウェアです。
 
 ![image](/images/picture/picture.023.jpeg)
 
