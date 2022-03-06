@@ -4,12 +4,12 @@ title: "２部: コンテナの基礎操作"
 
 コンテナを操作するコマンドをいくつか使い、コンテナを起動したり停止したりできるようになりましょう。
 
-コマンド一覧を覚えても「わかったけどいつ使うのさ」という気持ち止まりで正しい理解にはつながりづらいと [２部: Docker を理解するためのポイント](2-1-points) で言いましたが、最低限の基本操作は覚えておく必要があります。
+コマンド一覧を暗記しても理解度向上の実感には繋がりづらいと 【 ２部: Docker を理解するためのポイント 】 で言いましたが、それでも最低限の基本操作は覚えておく必要があります。
 
 ２部のここから先では、特定の用途によって使い分けたりしない Docker 操作の基礎を学びます。
 
-# このページで初登場する構築のコマンド
-## コンテナを起動する
+# このページで初登場するコマンドとオプション
+## コンテナを起動する - container run
 ```:新コマンド
 $ docker container run [option] <image> [command]
 ```
@@ -18,7 +18,7 @@ $ docker container run [option] <image> [command]
 $ docker run [option] <image> [command]
 ```
 
-## コンテナ一覧を確認する
+## コンテナ一覧を確認する - container ls
 ```:新コマンド
 $ docker container ls [option]
 ```
@@ -27,12 +27,11 @@ $ docker container ls [option]
 $ docker ps [option]
 ```
 
-### オプション
 オプション | 意味 | 用途  
 :-- | :-- | :--
 `-a`<br>`--all`   | 全てのコンテナを表示する | 起動中以外のコンテナを確認する
 
-## コンテナを停止する
+## コンテナを停止する - container stop
 ```:新コマンド
 $ docker container stop [option] <container>
 ```
@@ -41,7 +40,7 @@ $ docker container stop [option] <container>
 $ docker stop [option] <container>
 ```
 
-## コンテナを削除する
+## コンテナを削除する - container rum
 ```:新コマンド
 $ docker container rm [option] <container>
 ```
@@ -50,13 +49,12 @@ $ docker container rm [option] <container>
 $ docker rm [option] <container>
 ```
 
-### オプション
 オプション | 意味 | 用途  
 :-- | :-- | :--
 `-f`<br>`--force`   | 実行中のコンテナを強制削除する | 停止と削除をまとめて行う
 
 # コンテナを起動する
-[Nginx](https://hub.docker.com/_/nginx) という Web サーバのコンテナを、`docker container run` コマンドを使って起動してみましょう。
+[Nginx](https://hub.docker.com/_/nginx) という Web サーバのコンテナを、`container run` コマンドを使って起動してみましょう。
 
 ```:新コマンド
 $ docker container run [option] <image> [command]
@@ -84,12 +82,13 @@ $ docker container run hello-world --rm
 ```:正
 $ docker container run --rm hello-world
 ```
-`docker container run` が１つのコマンドだと理解できれば、`ls -l /tmp` と同じような形をしていることが理解できるはずです。
+`container run` が１つのコマンドだと理解できれば、`ls -l /tmp` と同じような形をしていることが理解できるはずです。
 :::
 
 まずはじめに最低限のオプションでコンテナを起動します。
+
 ただ起動だけをしたいので `<image>` に `nginx` を指定するのみにしたいところですが、動作確認が全くできないのは面白みにかけるので `--publish` オプションのみ付けることにします。
-`--publish` オプションによりブラウザから動作確認が動作確認ができるようになりますが、これの解説は [３部: todo]() で行います。
+`--publish` オプションによりブラウザから動作確認が動作確認ができるようになりますが、これの説明は【 ３部: ポート 】で行います。
 
 以上を踏まえ、次のコマンドでコンテナを起動します。
 
@@ -102,7 +101,7 @@ $ docker container run \
 ```
 
 :::message
-Docker のコマンドは長くなりがちなので、この Book では引数ごとに `\` で改行します。
+Docker のコマンドは長くなりがちなので、この本では引数ごとに `\` で改行します。
 
 そのままペーストして実行できますが、コマンドは自分の手で入力することを強く推奨します。
 
@@ -110,7 +109,7 @@ Docker のコマンドは長くなりがちなので、この Book では引数�
 :::
 
 :::message
-出力は見やすいように空行や余白を入れたり、要点と以外をカットしたりしています。
+出力は見やすいように空行や余白を入れたり、要点以外をカットしたりしています。
 ご了承ください。
 :::
 
@@ -127,13 +126,13 @@ Docker のコマンドは長くなりがちなので、この Book では引数�
 ![image](/images/structure/structure.019.jpeg)
 
 # 起動中のコンテナ一覧を確認する
-コンテナ一覧の確認をするときは `docker container ls` コマンドを使います。
+コンテナ一覧の確認をするには `container ls` コマンドを使います。
 
 ```:新コマンド
 $ docker container ls [option]
 ```
 
-`docker container run` を実行したターミナルのタブをそのままにして、別のタブを新たに開きコンテナ一覧を確認してみます。
+`container run` を実行したターミナルのタブをそのままにして、別のタブを新たに開きコンテナ一覧を確認してみます。
 
 オプションは特に指定しなくてよいので、次のコマンドでコンテナ一覧を確認します。
 
@@ -153,18 +152,13 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS   
 ![image](/images/structure/structure.020.jpeg)
 
 # 起動中のコンテナを停止する
-Web サーバで確認したいことが終わってコンテナを停止したくなったら、`docker container stop` コマンドを使います。
+Web サーバを使い終わりコンテナを停止したくなったら、`container stop` コマンドでコンテナを停止します。
 
 ```:新コマンド
 $ docker container stop [option] <container>
 ```
 
-`docker container stop` にはほぼ全くオプションはなく、コンテナを停止するコマンドはシンプルです。
-
-引数        | 値                  | 理由                                    
-:--         | :--                 | :--                                     
-`[option]`  | | 
-`<container>`   | `7fbae1e2219d` か<br>`amazing_brahmagupta` | 命令対象がコンテナのため、<br>コンテナを一意にできる情報を指定する
+`container stop` にはオプションはほとんどないため、対象の `<container>` を `CONTAINER ID` か `NAMES` で指定するだけで実行できます。
 
 以上を踏まえ、次のコマンドでコンテナを停止します。
 
@@ -190,7 +184,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 # 全てのコンテナ一覧を確認する
 コンテナは、停止しても削除するまでは情報としてはホストマシンに残り続け、再起動することもできます。
 
-起動していないコンテナも含めてコンテナ一覧を確認するには、`docker container ls` に `--all` オプションをつけて実行します。
+起動していないコンテナも含めてコンテナ一覧を確認するには、`container ls` に `--all` オプションをつけて実行します。
 
 ```:Host Machine
 $ docker container ls \
@@ -207,13 +201,13 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS  
 ![image](/images/structure/structure.023.jpeg)
 
 # 停止済コンテナを削除する
-停止済みのコンテナを削除するには `docker container rm` を行います。
+停止済コンテナを削除するには `container rm` を行います。
 
 ```:新コマンド
 $ docker container rm [option] <container>
 ```
 
-`docker container stop` と同様に `docker container rm` も `<container>` を指定するコマンドなので、`docker container ls` で確認できる `CONTAINER ID` を使って実行します。
+`container stop` と同様に `container rm` も `<container>` を指定するコマンドなので、`container ls` で確認できる `CONTAINER ID` を使って実行します。
 
 ```:Host Machine
 $ docker container rm \
@@ -234,7 +228,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ![image](/images/structure/structure.024.jpeg)
 
 # 起動中のコンテナを停止せずいきなり削除する
-`docker container stop` と `docker container rm` を次のコマンドでまとめて行うことができます。
+`container stop` と `container rm` を次のコマンドでまとめて行うことができます。
 
 ```:Host Machine
 $ docker container rm \
@@ -251,17 +245,17 @@ $ docker container rm \
 ## 停止するか削除するか
 停止済のコンテナは再起動ができますが、僕はほとんど再起動をすることはありません。
 
-なので僕は `docker container stop` は使わずに `docker container rm --force` か、[２部: コンテナ起動時の基本の指定](2-2-container-basic-operation) で解説する `docker container run` の `--rm` オプションを使って、コンテナはすぐ削除しています。
+なので僕は `container stop` は使わずに `container rm --force` か、【 ２部: コンテナ起動時の基本の指定 】で解説する `container run` の `--rm` オプションを使って、コンテナはすぐ削除しています。
 
 コンテナは軽量で使い捨てがコンセプトなので、気軽に起動して用が済んだら削除、また使いたくなったら起動しなおす、というスタンスがシンプルでよいと僕は思います。
 
 # まとめ
 簡潔にまとめます。
 
-- コンテナを起動するには `docker container run`
-- コンテナ一覧を確認するなら `docker container ls`
-- 起動中のコンテナを停止するなら `docker container stop`
-- 停止済のコンテナを削除するなら `docker container rm`
-- 起動中のコンテナを削除するなら `docker container rm --force`
+- コンテナを起動するには `container run`
+- コンテナ一覧を確認するなら `container ls`
+- 起動中のコンテナを停止するなら `container stop`
+- 停止済のコンテナを削除するなら `container rm`
+- 起動中のコンテナを削除するなら `container rm --force`
 
 混乱してしまった時は立ち返ってみてください。

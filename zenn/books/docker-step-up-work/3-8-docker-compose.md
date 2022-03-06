@@ -67,8 +67,8 @@ Mail | エイリアスを設定       | `container run --network-alias` | -
 ほか | ボリュームの作成       | `volume create`                 |                                
 ほか | ネットワークの作成     | `network create`                | -                              
 
-# このページで初登場する構築のコマンド
-## ボリュームを作成する - volume create
+# このページで初登場する構築のコマンドとオプション
+## Docker Compose で起動する - compose up
 ```:コマンド
 $ docker compose up [option]
 ```
@@ -85,15 +85,15 @@ Docker Compose は複数のコンテナの起動を Yaml ファイルの内容�
 
 - Dockerfile および `COPY` 元のファイル
 - イメージをビルドする手順  
-- コンテナの起動をする手順
+- コンテナを起動する手順
 
 ![image](/images/structure/structure.094.jpeg)
 
-このうち Dockerfile 関連のもの以外は **ほぼ Yaml ファイルに置き換えられます**。
+このうち Dockerfile 関連のものは **Yaml ファイルに置き換えられません**。
 
 ![image](/images/structure/structure.095.jpeg)
 
-**コンテナの起動を楽にするツール** ということは **イメージはやはり必要** ということなので、Docker Compose を導入しても **Dockerfile はなくなりはしない** ということが感覚的に理解できるでしょう。
+**コンテナの起動を楽にするツール** ということは **イメージはやはり必要** ということなので、Docker Compose を導入しても **Dockerfile は今まで通り必要** なのが感覚的に理解できるでしょう。
 
 Docker Compose の **Yaml ファイル** と、**Dockerfile** と **イメージ** と **コンテナ** の関係をよく理解しましょう。
 
@@ -136,7 +136,7 @@ services:
 それぞれの下にそれぞれの手順を移植していくことになります。
 
 ここから先は `docker-compose.yml` 全体ではなく、サービスに追記した部分だけを抜粋して記載することにします。
-サービスの末尾に追記していけば問題ありませんが、前後関係はないのでどこに記述しても大丈夫です。
+サービスの末尾に追記していけば問題ありませんが、前後関係はないのでサービスの下ならどこに記述しても大丈夫です。
 
 ## App / DB / Mail コンテナの名前を指定
 `container run --name` で指定していたコンテナ名を `container_name:` で置き換えます。
@@ -164,7 +164,7 @@ Docker Compose ではコンテナの指定を `compose exec app` のように **
 ## App / DB イメージのビルド
 **Dockerfile そのものは今までと全く同じものが必要** ですが、Dockerfile の指定をすれば **ビルド作業は Docker Compose が行ってくれます**。
 
-`image build --file <path>` で指定していた Dockerfile を `build.dockerfile:` で、`<path>` を `build.context:` で置き換えます。
+`image build --file dockerfile <path>` で指定していた `dockerfile` を `build.dockerfile:` で、`<path>` を `build.context:` で置き換えます。
 
 ```yaml:docker-compose.yml
   app:
@@ -235,7 +235,7 @@ volumes:
 
 まっさらなボリュームを使いたいので、`docker-practice-db-volume` とは名前を変えました。
 
-次に `container run --mount` で指定していたボリュームのマウントを `volume:` で置き換えます。
+ `container run --mount` で指定していたボリュームのマウントも `volume:` で置き換えます。
 
 ```yaml:docker-compose.yml
   db:
@@ -274,7 +274,7 @@ volumes:
 バインドマウントなのに `volumes:` という指定なので混乱してしまいますが、`type: bind` に注目して読むと良いです。
 
 ## App / Mail コンテナのポートを公開
-`container run --publish` で指定していた環境変数を `ports:` で置き換えます。
+`container run --publish` で指定していたポートの公開を `ports:` で置き換えます。
 
 ```yaml:docker-compose.yml
   app:
@@ -305,7 +305,6 @@ Docker Compose では **自動でブリッジネットワークが作成され�
 ## 起動と動作確認
 置き換えはこれで全てです。
 
-:::details docker-compose.yml の全体
 ```yaml:docker-compose.yml
 version: '3.9'
 
@@ -351,7 +350,6 @@ services:
 volumes:
   docker-practice-db-store:
 ```
-:::
 
 ここまでをしっかり構築してきた経験があるので、ちゃんと `docker-compose.yml` の **全ての行があまさず理解できる** と思います。
 
@@ -366,15 +364,15 @@ $ docker compose up
 ３つのコンテナが起動していく様が確認できるはずです。
 
 ### バックグラウンド実行とイメージの再ビルド
-出力を見たかったので `compose up` はフォアグラウンド実行をしましたが、`container run` と同様に `--detach` を指定するとバックグラウンドで実行できます。
+出力を見たかったので `compose up` はフォアグラウンド実行をしましたが、`container run` と同様に `--detach` オプションを指定するとバックグラウンドで実行できます。
 
 フォアグラウンドでの実行は `ctrl + c` で止めることができますが、これは正常な Docker Compose の終了フローにならないため、**コンテナは停止済のまま残ります**。
-バックグラウンドでの実行は `compose down` というコマンドで全サービスを一気に停止することが可能で、この場合は `--rm` オプション指定時と同様に **停止済コンテナは削除されます**。
+Docker Compose で起動したサービスは `compose down` というコマンドで一気に停止することが可能で、この場合は `--rm` オプション指定時と同様に **停止済コンテナは削除されます**。
 
 また、`--build` オプションをつけることにより、コンテナの起動前にイメージの再ビルドをさせることができます。
 
 ### 動作確認
-http://localhost:18000 と http://localhost:18025 にアクセスして、一通りの動作確認を行いましょう。
+http://localhost:18000 と http://localhost:18025 にアクセスして一通りの動作確認をしましょう。
 ボリュームは今までと違うものにしたので、メール送信履歴はなくなっています。
 
 問題なければこれで構築は本当に完成です、おつかれさまでした。

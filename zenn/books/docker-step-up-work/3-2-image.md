@@ -37,13 +37,13 @@ Mail| Docker Compose 化                                                        
 この本では [Ubuntu](https://hub.docker.com/_/ubuntu) イメージをベースにして、自分で PHP とメール送信のコマンドをインストールしたり設定を行ったりします。
 
 PHP のインストールから行うのは学習のためであり、実運用では Docker Hub で **言語やフレームワークの公式イメージの中から選んだイメージをベースにする** ことが多いです。
-とはいえそれらの公式イメージがそのまま未設定で用途に合致することは多くないため、**イメージの作成は必要スキル** です。
+とはいえそれらの公式イメージがそのまま未設定で用途に合致することは多くないため、**イメージのビルドは必要スキル** です。
 
 :::message
 PHP の場合は、通常は言語のセットアップとは別に Apache や Nginx をセットアップしますが、この本では PHP の [ビルトインウェブサーバー](https://www.php.net/manual/ja/features.commandline.webserver.php) を使います。
 これは PHP 自体を簡易な Web サーバにすることができる **開発環境のための PHP の標準機能** です。
 
-Apache や Nginx で構築しておかないとコンテナをそのままリリースできなくなってしまうので、この構成は演習に限るとご理解ください。
+Apache や Nginx で構築しておかないとコンテナをそのままリリースできなくなってしまうので、この構成はこの本のサンプルだからだとご理解ください。
 :::
 
 ## DB コンテナについて
@@ -72,10 +72,13 @@ App イメージを作るための Dockerfile は、次の内容を実現する�
 
 ![image](/images/structure/structure.060.jpeg)
 
-また、最後に動作確認で必要になるいくつかのコマンドをインストールしておくことにします。
-これらは確認作業に限るものなので、全体構成図などでは表記を省きます。
+また、最後のレイヤーで動作確認で必要になるいくつかのコマンドをインストールしておくことにします。
+これらは確認用途に限るものなので、全体構成図などでは表記を省きます。
 
 まずは `docker/app/Dockerfile` を作成してください。
+
+```Dockerfile:docker/app/Dockerfile
+```
 
 ### ベースイメージの指定
 ベースイメージの指定は `FROM` で行います。
@@ -157,7 +160,7 @@ from "service@d-prac.mock"
 ### 動作確認用コマンドのインストール
 最後に、`curl` と `ping` と `ps` と `vi` と `tree` をインストールしておきます。
 
-アプリケーションを動かすためには必要ありませんし、たまに必要になる程度ならコンテナに直接インストールして使い捨てても良いのですが、この本では動作確認を行う時にたびたび使用するためイメージに含めておくことにしました。
+アプリケーションを動かすためには必要ありませんし、たまに必要になる程度ならコンテナに直接インストールして使い捨てても良いのですが、この本では動作確認を行う際にたびたび使用するためイメージに含めておくことにしました。
 
 Dockerfile の末尾に次のように書き足してください。
 
@@ -165,11 +168,11 @@ Dockerfile の末尾に次のように書き足してください。
 RUN apt install -y curl iputils-ping procps vim tree
 ```
 
-### App イメージの作成
+### App イメージのビルド
 結果的に次のようになっているはずです。
 
 ```:Host Machine
-$ tree docker --charset c
+$ tree docker
 docker
 `-- app
     |-- Dockerfile
@@ -222,7 +225,7 @@ Docker Hub で `mysql` と検索すると、[MySQL](https://hub.docker.com/_/mys
 
 [Tags](https://hub.docker.com/_/mysql?tab=tags) を見ると主に 5.7 系と 8 系がありますが、今回は `mysql:5.7` を使います。
 
-`OS/ARCH` の項目を見ると 8 系は `linux/arm64/v8` がありますが、5.7 系にはそれがないため、`docker container run` の `--platform` と同様のアーキテクチャを明示するオプションが必要になります。
+`OS/ARCH` の項目を見ると 8 系は `linux/arm64/v8` がありますが、5.7 系にはそれがないため、`container run` の `--platform` オプションと同様のアーキテクチャを明示するオプションが必要になります。
 
 以上を踏まえ、`Dockerfile` を次のように編集します。
 
@@ -231,7 +234,7 @@ FROM --platform=linux/amd64 mysql:5.7
 ```
 
 ### MySQL の設定ファイルを追加
-これは **Docker ではなく MySQL について調べ**、内容と配置先を確認します。
+**Docker ではなく MySQL について調べ**、内容と配置先を確認します。
 
 まず内容ですが、文字コードとログの設定をしたいので次のような設定ファイルを作成します。
 
@@ -253,11 +256,11 @@ default-character-set = utf8
 COPY ./docker/db/my.cnf /etc/my.cnf
 ```
 
-### イメージの作成
+### イメージのビルド
 結果的に次のようになっているはずです。
 
 ```:Host Machine
-$ tree docker --charset c
+$ tree docker
 docker
 |-- app
 |   |-- Dockerfile
@@ -289,7 +292,7 @@ $ docker image build            \
 ## Mail イメージの選定
 先述の通り [MailHog](https://hub.docker.com/r/mailhog/mailhog) はそのまま使うため、ビルドは必要ありません。
 
-イメージの取得も `docker container run` についでにやってもらうことにするので、`docker image pull` すら必要ありません。
+イメージの取得も `container run` についでにやってもらうことにするので、`image pull` すら必要ありません。
 
 `mailhog/mailhog:v1.0.1` というイメージ名だけ控えておきましょう。
 

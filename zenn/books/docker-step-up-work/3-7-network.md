@@ -33,7 +33,7 @@ Mail| Docker Compose 化                                                        
 ほか| ボリュームを作成                                                        | ✅　マウントする準備ができる
 ほか| 👉　ネットワークを作成                                                        | コンテナを接続する準備ができる
 
-# このページで初登場する構築のコマンド
+# このページで初登場する構築のコマンドとオプション
 ## ネットワークを作成する - network create
 ```:コマンド
 $ docker network create [option] name
@@ -51,7 +51,7 @@ Docker のコンテナは、デフォルトで数種類用意されているネ�
 
 たとえばブリッジネットワークにはこのような特徴があります。
 
-- ネットワークドライバを特に指定しなかった場合のデフォルトである
+- ネットワークドライバを特に指定しなかった場合の **デフォルト** である
 - **同一の** Docker Engine 上のコンテナが互いに通信をする場合に利用する
 
 オーバーレイネットワークにはこのような特徴があります。
@@ -115,6 +115,7 @@ b1a6a93a2277ff8dfee537c174315f10daabdd807319b1eba25a287f954d2369
 
 ```:Host Machine
 $ docker network ls
+
 NETWORK ID     NAME                      DRIVER    SCOPE
 0edfc31a4369   bridge                    bridge    local
 959366d438e3   docker-practice-network   bridge    local
@@ -125,9 +126,9 @@ ec6642979247   host                      host      local
 `bridge` と `host` と `none` はデフォルトの必ず存在するネットワークで、それに加えて１つの `bridge` ドライバの `docker-practice-network` があることを確認できます。
 
 ## App コンテナをネットワークに接続する
-ボリュームのときと同様に、作成したネットワークにコンテナを接続するには `docker container run` のオプションを追加します。
+ボリュームのときと同様に、作成したネットワークにコンテナを接続するには `container run` のオプションを追加します。
 
-`--network` で先ほど作成した `docker-practice-network` を指定するようにコマンドを修正します。
+`--network` で作成した `docker-practice-network` を指定するようにコマンドを修正します。
 
 ```:Host Machine
 $ docker container run                        \
@@ -145,23 +146,23 @@ $ docker container run                        \
 
 これで App コンテナがほかのコンテナに接続する準備ができました。
 
-### 設定できたことを確認する
+### コンテナがネットワークに接続できたことを確認する
 コンテナがネットワークに接続できているか確認するには、ネットワークを検査する `network inspect` コマンドとコンテナを検査する `container inspect` コマンドを使います。
 
-まずネットワークを検査してみると、ネットワークの `Subnet` は `172.20.0.0/16` で `Gateway` は `172.20.0.1` となっています。
+まずネットワークを検査してみると、ネットワークの `Subnet` は `172.26.0.0/16` で `Gateway` は `172.26.0.1` となっています。
 ( 毎回同じ IP アドレスになるとは限りません )
 
 ```:Host Machine
 $ docker network inspect docker-practice-network | jq '.[].IPAM.Config'
 [
   {
-    "Subnet": "172.20.0.0/16",
-    "Gateway": "172.20.0.1"
+    "Subnet": "172.26.0.0/16",
+    "Gateway": "172.26.0.1"
   }
 ]
 ```
 
-次にコンテナの検査をしてみると、`Networks` に `docker-practice-network` が設定されており、`IPAddress` が `172.20.0.2` になっています。
+次にコンテナの検査をしてみると、`Networks` に `docker-practice-network` が設定されており、`IPAddress` が `172.26.0.2` になっています。
 
 ```:Host Machine
 $ docker container inspect app | jq '.[].NetworkSettings.Networks'
@@ -170,45 +171,45 @@ $ docker container inspect app | jq '.[].NetworkSettings.Networks'
     "IPAMConfig": null,
     "Links": null,
     "Aliases": [
-      "bf4f3a61d7a9"
+      "0951c85d839e"
     ],
-    "NetworkID": "b1a6a93a2277ff8dfee537c174315f10daabdd807319b1eba25a287f954d2369",
-    "EndpointID": "038037dfc407241837ddef010424411d73e8bc7ec449445348f9d605b90678c7",
-    "Gateway": "172.20.0.1",
-    "IPAddress": "172.20.0.2",
+    "NetworkID": "a6645297673d9588c82139b6e77d48e876c7fee36d6bef312d691c6ee5c37465",
+    "EndpointID": "7e09aa35e771f0554ac4e253f399c9852ded3b4c5ef3cfd67c04c803e1e0474f",
+    "Gateway": "172.26.0.1",
+    "IPAddress": "172.26.0.2",
     "IPPrefixLen": 16,
     "IPv6Gateway": "",
     "GlobalIPv6Address": "",
     "GlobalIPv6PrefixLen": 0,
-    "MacAddress": "02:42:ac:14:00:02",
+    "MacAddress": "02:42:ac:1a:00:02",
     "DriverOpts": null
   }
 }
 ```
 
-ネットワークの `Gateway` とコンテナの `Gateway` が一致していて、コンテナの `IPAddress` がそれに続く値になっていれば、ちゃんと設定できていると思って問題ありません。
+ネットワークの `Gateway` とコンテナの `Gateway` が一致していて、コンテナの `IPAddress` がそれに続く値になっていれば、ちゃんと設定できています。
 
 ## DB コンテナをネットワークに接続し、エイリアスを設定する
 App コンテナだけネットワークに接続しても意味はないので、DB コンテナもネットワークに接続します。
 
 当然接続するネットワークは App コンテナと同じ `docker-practice-network` です。
 
-また、App コンテナから DB コンテナにアクセスする時に使うホスト名を **DB コンテナ側に** `--network-alias` を使って設定します。
+また、App コンテナから DB コンテナにアクセスする時に使うホスト名を `--network-alias` オプションを使って **DB コンテナに** 設定します。
 
 ```:Host Machine
-$ docker container run                                                                \
-    --name db                                                                         \
-    --rm                                                                              \
-    --detach                                                                          \
-    --platform linux/amd64                                                            \
-    --env MYSQL_ROOT_PASSWORD=rootpassword                                            \
-    --env MYSQL_USER=hoge                                                             \
-    --env MYSQL_PASSWORD=password                                                     \
-    --env MYSQL_DATABASE=event                                                        \
-    --mount type=volume,src=docker-practice-db-volume,dst=/var/lib/mysql              \
-    --mount type=bind,src=docker/db/init.sql,dst=/docker-entrypoint-initdb.d/init.sql \
-    --network docker-practice-network                                                 \
-    --network-alias db                                                                \
+$ docker container run                                                                       \
+    --name db                                                                                \
+    --rm                                                                                     \
+    --detach                                                                                 \
+    --platform linux/amd64                                                                   \
+    --env MYSQL_ROOT_PASSWORD=rootpassword                                                   \
+    --env MYSQL_USER=hoge                                                                    \
+    --env MYSQL_PASSWORD=password                                                            \
+    --env MYSQL_DATABASE=event                                                               \
+    --mount type=volume,src=docker-practice-db-volume,dst=/var/lib/mysql                     \
+    --mount type=bind,src=$(pwd)/docker/db/init.sql,dst=/docker-entrypoint-initdb.d/init.sql \
+    --network docker-practice-network                                                        \
+    --network-alias db                                                                       \
     docker-practice:db
 ```
 
@@ -219,8 +220,6 @@ $ docker container run                                                          
 
 ネットワークとコンテナの `Gateway` が一致しているか、コンテナの `IPAddress` が妥当か、確認してみてください。
 
-また、DB コンテナにはエイリアスを設定したので `Networks` の `Aliases` に `db` が増えていることが確認できるはずです。
-
 ```:Host Machine
 $ docker container inspect db | jq '.[].NetworkSettings.Networks'
 {
@@ -229,21 +228,23 @@ $ docker container inspect db | jq '.[].NetworkSettings.Networks'
     "Links": null,
     "Aliases": [
       "db",
-      "1048ebde5524"
+      "9eb844b3aaa2"
     ],
-    "NetworkID": "959366d438e350b56f94f11ed1c0b4df4f1ceeed9931d433fd37cae230aa23e4",
-    "EndpointID": "88765ee44a5e3b05c67efe7c504a26c4b883ce6b8f995027b394a513efb43f86",
-    "Gateway": "192.168.16.1",
-    "IPAddress": "192.168.16.2",
-    "IPPrefixLen": 20,
+    "NetworkID": "a6645297673d9588c82139b6e77d48e876c7fee36d6bef312d691c6ee5c37465",
+    "EndpointID": "a50e15edd620708eb19efc7d831832baf4a62e4a43fd81cedd8b437eee592ff4",
+    "Gateway": "172.26.0.1",
+    "IPAddress": "172.26.0.3",
+    "IPPrefixLen": 16,
     "IPv6Gateway": "",
     "GlobalIPv6Address": "",
     "GlobalIPv6PrefixLen": 0,
-    "MacAddress": "02:42:c0:a8:10:02",
+    "MacAddress": "02:42:ac:1a:00:03",
     "DriverOpts": null
   }
 }
 ```
+
+また、DB コンテナにはエイリアスを設定したので `Networks` の `Aliases` に `db` が増えていることが確認できるはずです。
 
 `--network` オプションを正しく設定できたかは `Gateway` と `IPAddress` を、`--network-alias` オプションを正しく設定できたかは `Aliases` を、それぞれ確認できれば大丈夫です。
 
@@ -276,32 +277,28 @@ $ docker container exec \
     --interactive       \
     --tty               \
     app                 \
-    bash
+    ping db -c 3
 
-# apt install -y iputils-ping
-
-# ping db -c 3
-
-PING db (192.168.16.2) 56(84) bytes of data.
-64 bytes from db.docker-practice-network (192.168.16.2): icmp_seq=1 ttl=64 time=3.36 ms
-64 bytes from db.docker-practice-network (192.168.16.2): icmp_seq=2 ttl=64 time=0.294 ms
-64 bytes from db.docker-practice-network (192.168.16.2): icmp_seq=3 ttl=64 time=0.287 ms
+PING db (172.26.0.3) 56(84) bytes of data.
+64 bytes from db.docker-practice-network (172.26.0.3): icmp_seq=1 ttl=64 time=4.12 ms
+64 bytes from db.docker-practice-network (172.26.0.3): icmp_seq=2 ttl=64 time=0.541 ms
+64 bytes from db.docker-practice-network (172.26.0.3): icmp_seq=3 ttl=64 time=0.298 ms
 
 --- db ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2021ms
-rtt min/avg/max/mdev = 0.287/1.312/3.357/1.445 ms
+3 packets transmitted, 3 received, 0% packet loss, time 2023ms
+rtt min/avg/max/mdev = 0.298/1.652/4.117/1.745 ms
 ```
 
-`db` というホストに３回リクエストを投げると、それら全てが `192.168.16.2` 向けて送られ `0% packet loss` という結果になれば問題ありません。
+`db` というホストに３回リクエストを投げると、それら全てが `172.26.0.3` 向けて送られ `0% packet loss` という結果になれば問題ありません。
 
 Mail コンテナに対しても同じく成功するはずなので、確認してみてください。
 
 ## App コンテナから DB コンテナへの接続設定をする
 ３つのコンテナが同じネットワークに接続されホスト名で通信できることも確認できたので、App コンテナから MySQL データベースサーバへ接続するための設定を行います。
 
-App コンテナは PHP アプリケーションから MySQL データベースサーバに接続するため、接続設定は `.php` に書いてあります。
+App コンテナは PHP アプリケーションから MySQL データベースサーバに接続するため、設定は `.php` で行います。
 
-**`.php` はバインドマウントしてありホストマシンの編集は App コンテナ内に即時反映されるようになっている** ので、ホストマシンのお好みのエディタで編集することができます。
+**`.php` はバインドマウントしてありホストマシンの編集は App コンテナ内に即時反映されるようになっている** ので、ホストマシンの好みのエディタで編集することができます。
 
 `history.php` と `mail.php` から次の記述を探してください。
 `???` の部分を全て埋め、MySQL に接続できるようにします。
@@ -338,24 +335,29 @@ $password = 'password';
 
 **バインドマウントにより** 編集結果は App コンテナにも反映されているので、特に **コンテナの再起動などは不要** です。
 
-todo bind mount no e
-
 ### App コンテナが MySQL データベースサーバにアクセスできていることを確認する
 http://localhost:18000/history.php を開き画面が表示されれば大丈夫です。
 
+![image](/images/demo-no-history.png)
+
 それから `Mail Send` に遷移してメール送信をしてみましょう。
+まだメールサーバに接続する設定をしていないため、メール送信には失敗します。
 
-まだメールサーバに接続する設定をしていないためメール送信には失敗しますが、`Mail History` でその履歴が確認できれば成功です。
+![image](/images/demo-form-2.png)
 
-todo
+![image](/images/demo-mail-send-failed.png)
+
+送信には失敗しましたが、`Mail History` でその履歴が確認できれば DB コンテナとの接続はちゃんと成功しています。
+
+![image](/images/demo-mail-error-history.png)
 
 ## App コンテナから Mail コンテナへの接続設定をする
 最後に App コンテナからメールサーバに接続するための設定を行います。
 
-App コンテナは msmtp を使いメールサーバに接続するため、接続設定は `mailrc` に書いてあります。
+App コンテナは msmtp を使いメールサーバに接続するため、設定は `mailrc` で行います。
 
-**`mailrc` は Dockerfile で `COPY` しているファイルなので編集したらイメージの再ビルドが必要** です。
-コンテナ内のファイルを編集しても、一度コンテナを削除すると編集は破棄されてしまうためです。
+**`mailrc` は Dockerfile で `COPY` したファイルなので編集したらイメージの再ビルドが必要** です。
+コンテナ内のファイルを編集しても、その編集はそのコンテナに限られるためです。
 
 ![image](/images/structure/structure.090.jpeg)
 
@@ -389,7 +391,10 @@ $ docker image build             \
     --tag docker-practice:app    \
     --file docker/app/Dockerfile \
     .
-    
+
+$ docker container stop \
+    app
+
 $ docker container run                        \
     --name app                                \
     --rm                                      \
@@ -404,7 +409,11 @@ $ docker container run                        \
 ### App コンテナがメールサーバにアクセスできていることを確認する
 http://localhost:18000/form.php を開き、メールが送信できれば大丈夫です。
 
-todo
+![image](/images/demo-form-2.png)
+
+![image](/images/demo-result.png)
+
+![image](/images/demo-error-and-success-history.png)
 
 # 完成
 これで全ての構築が完了しました。
