@@ -37,6 +37,7 @@ Mail| 👉　Docker Compose 化                                                 
 ![image](/images/structure/structure.056.jpeg)
 
 この黒字の部分を、赤字で示す通り全て Docker Compose の Yaml ファイルに置き換えます。
+( 右下の `container exec` はデバッグ操作の経路なので Docker Compose で構築する対象ではありません。 )
 
 ![image](/images/structure/structure.093.jpeg)
 

@@ -60,7 +60,7 @@ $ docker volume create [option]
 
 **ホストマシン側のどこに保存されているかは関心がなくとにかくデータを永続化したい** という場合に有用で、たとえばデータベースのデータの永続化に活用できます。
 
-![image](/images/structure/structure.077.jpeg)
+![image](/images/structure/structure.041.jpeg)
 
 コンテナの特定のディレクトリをボリュームとしてホストマシン側で管理すれば、コンテナが削除されてもデータが消失しなくなります。
 
