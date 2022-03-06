@@ -11,8 +11,8 @@ services:
     volumes:
       - type: bind
         source: ./src
-        target: /tmp/src
-    command: php -S 0.0.0.0:8000 -t /tmp/src
+        target: /src
+    command: php -S 0.0.0.0:8000 -t /src
 
   db:
     container_name: docker-practice-db

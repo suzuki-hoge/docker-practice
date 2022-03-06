@@ -78,7 +78,7 @@ $ docker compose up [option]
 `-d`<br>`--detach`   | バックグラウンドで実行する   | ターミナルが固まるのを避ける
 `--build`   | コンテナを起動する前にイメージをビルドする   | Dockerfile の変更を反映する
 
-# Docker Compose に置き換える作業を始める前に
+# Docker Compose への置き換えを始める前に
 Docker Compose は複数のコンテナの起動を Yaml ファイルの内容に従って行ってくれるツールで、Docker Desktop に含まれています。
 
 ここまで作ってきたものは大まかに分類すると次の通りです。
@@ -162,7 +162,7 @@ Docker Compose ではコンテナの指定を `compose exec app` のように **
 とは言え、未指定だと複数の Docker Compose を実行したときにわかりづらくなってしまうため、適当なプリフィックスを揃えてつけておくくらいはすると良いでしょう。
 
 ## App / DB イメージのビルド
-**Dockerfile そのものは今までと全く同じものが必要** ですが、Dockerfile の指定をすれば **ビルド作業は Docker Compose が行ってくれます**。
+**Dockerfile そのものは今までと全く同じものが必要** ですが、Dockerfile の指定をすれば **ビルドは Docker Compose が行ってくれます**。
 
 `image build --file dockerfile <path>` で指定していた `dockerfile` を `build.dockerfile:` で、`<path>` を `build.context:` で置き換えます。
 
@@ -219,7 +219,7 @@ Dockerfile ではなくイメージを直接指定することももちろんで
 ## ボリュームの作成と DB コンテナへのマウント
 `volume create` で行っていたボリュームの作成を `volumes:` で置き換えます。
 
-ボリュームの作成は特定のサービスに対して行う作業ではないため、`services:` の下ではなくルートに記述します。
+ボリュームの作成は特定のサービスに対して行う操作ではないため、`services:` の下ではなくルートに記述します。
 
 ```yaml:docker-compose.yml
 version: '3.9'
@@ -255,7 +255,7 @@ volumes:
     volumes:
       - type: bind
         source: ./src
-        target: /tmp/src
+        target: /src
 ```
 
 `volumes:` の要素はリストなので、先程のボリュームのマウントに続けて同じ `volumes:` の下に記述します。
@@ -299,7 +299,7 @@ Docker Compose では **自動でブリッジネットワークが作成され�
 
 ```yaml:docker-compose.yml
   app:
-    command: php -S 0.0.0.0:8000 -t /tmp/src
+    command: php -S 0.0.0.0:8000 -t /src
 ```
 
 ## 起動と動作確認
@@ -319,8 +319,8 @@ services:
     volumes:
       - type: bind
         source: ./src
-        target: /tmp/src
-    command: php -S 0.0.0.0:8000 -t /tmp/src
+        target: /src
+    command: php -S 0.0.0.0:8000 -t /src
 
   db:
     container_name: docker-practice-db

@@ -7,7 +7,7 @@ title: "３部: ポート"
 これでやっとブラウザから App コンテナと Mail コンテナの Web サーバにアクセスできるようになります。
 
 # 全体構成とハイライト
-![image](/images/structure/structure.085.jpeg)
+![image](/images/structure/structure.086.jpeg)
 
 ## やることの確認
 ＼ | やること                       | できるようになること                                                                                
@@ -73,9 +73,10 @@ $ docker container run                        \
 ![image](/images/demo-top.png)
 
 正しく表示されない場合は、`--detach` オプションを外して出力をよく確認したり、コンテナに配置されている設定ファイルを `bash` を使って確認したりしてください。
-【 ３部: とらぶる 】も活用してください。
 
 せっかくブラウザから操作できるようになりましたが、`Mail Form` の `Send` ボタンと `Mail History` はまだ機能しません。
+
+![image](/images/demo-no-db-error.png)
 
 Mail コンテナと DB コンテナにはまだ接続できないからです。
 
@@ -142,4 +143,4 @@ Mail| Docker Compose 化                                                        
 ほか| ネットワークを作成                                                        | コンテナを接続する準備ができる
 
 
-![image](/images/structure/structure.085.jpeg)
+![image](/images/structure/structure.086.jpeg)

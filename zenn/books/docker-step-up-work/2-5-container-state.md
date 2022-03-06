@@ -129,7 +129,7 @@ bash: vi: command not found
 cat: /root/hello.txt: No such file or directory
 ```
 
-**コンテナで行った作業や作成したファイルは他のコンテナには一切影響しない** ことが確認できました。
+**コンテナで行った操作や作成したファイルは他のコンテナには一切影響しない** ことが確認できました。
 
 ![image](/images/structure/structure.039.jpeg)
 
