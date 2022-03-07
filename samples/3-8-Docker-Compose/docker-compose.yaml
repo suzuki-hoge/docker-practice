@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: docker-practice-app
+    build:
+      dockerfile: docker/app/Dockerfile
+      context: .
+    ports:
+      - '18000:8000'
+    volumes:
+      - type: bind
+        source: ./src
+        target: /src
+    command: php -S 0.0.0.0:8000 -t /src
+
+  db:
+    container_name: docker-practice-db
+    build:
+      dockerfile: docker/db/Dockerfile
+      context: .
+    volumes:
+      - type: volume
+        source: docker-practice-db-store
+        target: /var/lib/mysql
+      - type: bind
+        source: ./docker/db/init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: hoge
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: event
+
+  mail:
+    container_name: docker-practice-mail
+    image: mailhog/mailhog:v1.0.1
+    platform: linux/x86_64
+    ports:
+      - "18025:8025"
+
+volumes:
+  docker-practice-db-store:

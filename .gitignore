@@ -1,0 +1,8 @@
+.DS_Store
+
+.idea/
+*.iml
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.default.json
